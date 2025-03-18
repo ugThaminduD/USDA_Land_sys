@@ -1,4 +1,4 @@
-const LandModel = require('../models/land');
+const LandModel = require('../models/Land');
 
 // Create a new land entry
 const createLand = async (req, res) => {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const EmployeeSchema = new Schema(
+const UserSchema = new Schema(
     {
         // employee_number: {
         //     type: Number,
@@ -50,5 +50,5 @@ const EmployeeSchema = new Schema(
     { timestamps: true }
 );
 
-const EmployeeModel = mongoose.model('employees', EmployeeSchema);
-module.exports = EmployeeModel;
+const UserModel = mongoose.model('users', UserSchema);
+module.exports = UserModel;

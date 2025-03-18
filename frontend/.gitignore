@@ -1,0 +1,14 @@
+## dependencies ##
+node_modules/
+
+
+## Build output ##
+dist/
+build/
+
+
+## testing ##
+tests/
+load-test.yml
+coverage/
+results.json
