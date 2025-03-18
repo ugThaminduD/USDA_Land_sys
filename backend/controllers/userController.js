@@ -1,7 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const UserModel = require("../models/User");
+const UserModel = require('../models/User');
+
 
 // Create a new employee
 const createUser = async (req, res) => {
