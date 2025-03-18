@@ -1,7 +1,7 @@
 const express = require('express');
 const { createLand, getAllLands, getLandById, updateLand, deleteLand } = require('../controllers/landController');
 // const { sendReminders } = require('../services/notificationService');
-// const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
