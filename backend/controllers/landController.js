@@ -74,4 +74,6 @@ const deleteLand = async (req, res) => {
 
 
 
-module.exports = { createLand, getAllLands, getLandById, updateLand, deleteLand };
+module.exports = { 
+    createLand, getAllLands, getLandById, updateLand, deleteLand 
+};
