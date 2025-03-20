@@ -1,54 +1,149 @@
 .LandForm {
     color: black;
-    background-color: gray; 
+    background-color: rgb(184, 178, 178); 
     background-size: cover; 
     background-position: center; 
     height: auto; 
     width: auto;
     padding: 50px;
     margin: 50px 0 50px 0;
+    border: solid red;
     border-radius: 10px;
 }
 .LandForm h1 {
+    margin: 20px;
+    margin-bottom: 50px;
+    padding: 30px;
+    border-radius: 20px;
     text-align: center;
     text-decoration: underline;
+    background-color: bisque;
 }
+.LandForm h3 {
+    color: black;
+    /* font-size: 20px;   */
+    margin-bottom: 20px;
+    padding: 10px 10px 10px 30px ;
+    border-radius: 10px;
+    text-decoration: underline;
+    background-color: burlywood;
+
+}
+
 
 .container_Land {
     height: auto; 
     width: auto;
-    margin: 50px 0 50px 0;
+    margin: 0 0 50px 0;
+    border-style: solid;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
 }
+.sec01 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px;
+    /* row-gap: 200px;  */
+    column-gap: 200px;
+}
+.sec01 div {
+    width: 400px;
+    /* margin: 0 50px 0 30px; */
+    display: flex;
+    justify-content: flex-start;
+}
+.sec02 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px;
+    /* row-gap: 200px;  */
+    column-gap: 50px;
+}
+.sec02 div {
+    width: 550px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.sec02 input {
+    width: 300px;
+}
+.sec01 label, .sec02 label {    
+    margin-bottom: 10px;
+    margin-right: 20px;
+    font-weight: 700;
+    width: 250px;
+}
+
+
+
 .container_Land_Details {
     height: auto; 
     width: auto;
-    margin: 50px 0 50px 0;
+    margin: 0 0 50px 0;
+    border-style: solid;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
+.sec03 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px;
+    /* row-gap: 200px;  */
+    /* column-gap: 200px; */
+}
+.sec03 input {
+    width: 500px;
+    /* margin-right: 20px; */
+}
+.sec03 label {
+    margin-right: 20px;
+    font-weight: 700;
+    width: 250px;
+}
+
+
 .container_Ownership {
     height: auto; 
     width: auto;
-    margin: 50px 0 50px 0;
+    margin: 0 0 50px 0;
+    border-style: solid;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
 }
-.container_Land h3,
-.container_Ownership h3,
-.container_Land_Details h3 {
-    color: black;
-    /* font-size: 20px;   */
-    margin-bottom: 20px;
-    text-decoration: underline;
+.sec04 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 20px;
+    /* row-gap: 200px;  */
+    column-gap: 200px;
 }
+.sec04 div {
+    width: 400px;
+    /* margin: 0 50px 0 30px; */
+    display: flex;
+    justify-content: flex-start;
+}
+.sec04 label {
+    margin-right: 20px;
+    font-weight: 700;
+    width: 300px;
+}
+
 
 .container_Land label,
 .container_Ownership label,
 .container_Land_Details label {
     color: black;  
     font-size: 18px;
-}
-
-.dropdown_btn {
-    background-color: rgb(186, 186, 186);
-    border-radius: 5px;
-    padding: 5px;
-    height: auto;
-    width: 100px;
 }

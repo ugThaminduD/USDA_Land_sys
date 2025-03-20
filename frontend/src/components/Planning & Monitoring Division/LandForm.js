@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import axios from "axios";
-// import backgroundImage from '../Planning & Monitoring Division/images/letterformbg.jpg';
 import "./LandForm.css"
 
 
@@ -28,6 +27,24 @@ const LandForm = ({ landId, onSuccess }) => {
         phone_number: ""
     });
 
+
+    const provinces = [
+        "Central Province", "Eastern Province", "North Central Province",
+        "Northern Province", "North Western Province", "Sabaragamuwa Province",
+        "Southern Province", "Uva Province", "Western Province"
+    ];
+
+    const districts = [
+        "Ampara", "Anuradhapura", "Badulla", "Batticaloa", 
+        "Colombo", "Galle", "Gampaha", "Hambantota", 
+        "Jaffna", "Kalutara", "Kandy", "Kegalle", 
+        "Kilinochchi", "Kurunegala", "Mannar", "Matale", 
+        "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", 
+        "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", 
+        "Vavuniya"
+    ];
+
+
     useEffect(() => {
         if (landId) {
             axios.get(`/get/land/${landId}`)
@@ -39,9 +56,7 @@ const LandForm = ({ landId, onSuccess }) => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-    const handleProvinceSelect = (province) => {
-        setFormData({ ...formData, Provinces: province });
-      };
+ 
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -59,87 +74,96 @@ const LandForm = ({ landId, onSuccess }) => {
 
     return (
         <div>
-            <form onSubmit={handleSubmit} className="container mt-4">
+             <form onSubmit={handleSubmit} className="container mt-4" >  {/* */}
                 <div className="LandForm" >
 
                     <h1>{landId ? "Edit Land Entry" : "Create Land Entry"}</h1>
 
+                    <h3>Land Location</h3>
                     <div className="container_Land">
-                        <h3>Land Location</h3>
-                        <div className="dropdown">
-                            <label htmlFor="dropdownMenu" className="form-label">Select the Province:</label>
-                            <button type="button"
-                                className="dropdown_btn"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {formData.Provinces || "select"}
-                            </button>
-                            <div className="dropdown-menu">
-                                {/* Sri Lanka Provinces */}
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Central Province")}>Central Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Eastern Province")}>Eastern Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("North Central Province")}>North Central Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Northern Province")}>Northern Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("North Western Province")}>North Western Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Sabaragamuwa Province")}>Sabaragamuwa Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Southern Province")}>Southern Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Uva Province")}>Uva Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Western Province")}>Western Province</a>
+                        
+                        <div className="sec01">                           
+                            <div>
+                                <label  >Province:</label>                               {/* Province Dropdown */}
+                                <select class="form-select"  
+                                    aria-label="Default select example"
+                                    name="Provinces" 
+                                    value={formData.Provinces} 
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option selected>Open this select menu</option>
+                                    {provinces.map((province, index) => (
+                                        <option key={index} value={province}>
+                                            {province}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label  >District:</label>                            {/* District Dropdown */}
+                                <select class="form-select"  
+                                    aria-label="Default select example"
+                                    name="Districts" 
+                                    value={formData.Districts} 
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option selected>Select a District</option>
+                                    {districts.map((district, index) => (
+                                        <option key={index} value={district}>
+                                            {district}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
-                        <div className="dropdown">
-                            <label htmlFor="dropdownMenu" className="form-label">Select the District:</label>
-                            <button type="button"
-                                className="dropdown_btn"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                {formData.Provinces || "select"}
-                            </button>
-                            <div className="dropdown-menu">
-                                {/* Sri Lanka Provinces */}
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Central Province")}>Central Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Eastern Province")}>Eastern Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("North Central Province")}>North Central Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Northern Province")}>Northern Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("North Western Province")}>North Western Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Sabaragamuwa Province")}>Sabaragamuwa Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Southern Province")}>Southern Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Uva Province")}>Uva Province</a>
-                                <a className="dropdown-item" onClick={() => handleProvinceSelect("Western Province")}>Western Province</a>
+                        <div className="sec02">
+                            <div>
+                                <label >Divisional Secretariats:</label>
+                                <input type="text" 
+                                    name="Divisional_secretariats" 
+                                    className="form-control"
+                                    placeholder="Divisional Secretariat" 
+                                    value={formData.Divisional_secretariats} 
+                                    nChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+
+                            <div  >
+                                <label >Grama Niladhari Divisions:</label>
+                                <input type="text" 
+                                    name="Grama_Niladhari_divisions" 
+                                    className="form-control"
+                                    placeholder="Grama Niladhari Divisions" 
+                                    value={formData.Grama_Niladhari_divisions} 
+                                    onChange={handleChange} 
+                                    required 
+                                />
                             </div>
                         </div>
+                         
+                    </div>
 
-
-
-                        {/* <div className="form-group">
+                    <h3>Land Details</h3>
+                    <div className="container_Land_Details">
+                        
+                        <div className="sec03">
+                            <label  >Land_address:</label>
                             <input type="text" 
-                                name="Districts" 
+                                name="Land_address" 
                                 className="form-control"
-                                placeholder="District" 
-                                value={formData.Districts} 
+                                placeholder="Land Address" 
+                                value={formData.Land_address} 
                                 onChange={handleChange} 
                                 required 
                             />
-                        </div> */}
-                        
-                        <div className="form-group">
-                            <input type="text" 
-                                name="Divisional_secretariats" 
-                                className="form-control"
-                                placeholder="Divisional Secretariat" 
-                                value={formData.Divisional_secretariats} 
-                                nChange={handleChange} 
-                                required 
-                            />
-                        </div> 
-                    </div>
-                    
-                    <div className="container_Land_Details">
-                        <h3>Land Details</h3>
-                        <div className="form-group">
+                        </div>
+                        <div className="sec03">
+                            <label  >Land_location:</label>
                             <input type="text" 
                                 name="Land_location" 
                                 className="form-control"
@@ -149,8 +173,8 @@ const LandForm = ({ landId, onSuccess }) => {
                                 required 
                             />
                         </div>
-                        
-                        <div className="form-group">
+                        <div className="sec03">
+                            <label  >Area_of_Land:</label>
                             <input type="text" 
                                 name="Area_of_Land" 
                                 className="form-control"
@@ -160,11 +184,37 @@ const LandForm = ({ landId, onSuccess }) => {
                                 required 
                             />
                         </div>
+                        <div className="sec03">
+                            <label  >Land Description:</label>
+                            <input type="text" 
+                                name="Land_description" 
+                                className="form-control"
+                                placeholder="Land Description" 
+                                value={formData.Land_description} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
+                        
                     </div>
-                    
+
+                    <h3>Land Ownership</h3>
                     <div className="container_Ownership">
-                        <h3>Land Ownership</h3>
-                        <div className="form-group">
+
+                    <div className="sec04">
+                            <div>
+                                <label  >Land Ownership:</label>
+                                <select class="form-select"  aria-label="Default select example">
+                                    <option selected>Open this select menu</option>
+                                    <option value="1">One</option>
+                                    <option value="2">Two</option>
+                                    <option value="3">Three</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="sec03">
+                            <label  >Land owner name:</label>
                             <input type="text" 
                                 name="Land_owner_name" 
                                 className="form-control"
@@ -175,7 +225,8 @@ const LandForm = ({ landId, onSuccess }) => {
                             />
                         </div>
                         
-                        <div className="form-group">
+                        <div className="sec03">
+                            <label  >Email:</label>
                             <input type="email" 
                                 name="email" 
                                 className="form-control"
@@ -186,7 +237,8 @@ const LandForm = ({ landId, onSuccess }) => {
                             />
                         </div>
                         
-                        <div className="form-group">
+                        <div className="sec03">
+                            <label  >Phone Number:</label>
                             <input type="text" 
                                 name="phone_number" 
                                 className="form-control"
@@ -199,6 +251,7 @@ const LandForm = ({ landId, onSuccess }) => {
                     </div>
                     
                     <button type="submit">{landId ? "Update Land" : "Create Land"}</button>
+
                 </div>
             </form>
         </div>
