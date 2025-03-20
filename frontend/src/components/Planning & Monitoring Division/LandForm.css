@@ -1,0 +1,54 @@
+.LandForm {
+    color: black;
+    background-color: gray; 
+    background-size: cover; 
+    background-position: center; 
+    height: auto; 
+    width: auto;
+    padding: 50px;
+    margin: 50px 0 50px 0;
+    border-radius: 10px;
+}
+.LandForm h1 {
+    text-align: center;
+    text-decoration: underline;
+}
+
+.container_Land {
+    height: auto; 
+    width: auto;
+    margin: 50px 0 50px 0;
+}
+.container_Land_Details {
+    height: auto; 
+    width: auto;
+    margin: 50px 0 50px 0;
+}
+.container_Ownership {
+    height: auto; 
+    width: auto;
+    margin: 50px 0 50px 0;
+}
+.container_Land h3,
+.container_Ownership h3,
+.container_Land_Details h3 {
+    color: black;
+    /* font-size: 20px;   */
+    margin-bottom: 20px;
+    text-decoration: underline;
+}
+
+.container_Land label,
+.container_Ownership label,
+.container_Land_Details label {
+    color: black;  
+    font-size: 18px;
+}
+
+.dropdown_btn {
+    background-color: rgb(186, 186, 186);
+    border-radius: 5px;
+    padding: 5px;
+    height: auto;
+    width: 100px;
+}
