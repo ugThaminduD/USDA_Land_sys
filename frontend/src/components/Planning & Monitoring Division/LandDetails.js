@@ -38,7 +38,9 @@ const LandDetails = () => {
             <p><strong>Day of Entry:</strong> {new Date(land.Day_of_Entry).toLocaleDateString()}</p>
 
             <h3>Owner Details</h3>
-            <p><strong>Owner Name:</strong> {land.Land_owner_name}</p>
+            <p><strong>Land Ownership:</strong> {land.Land_ownership}</p>
+            <p><strong>Land Owner Name:</strong> {land.Land_owner_name}</p>
+            <p><strong>Land Owner Address:</strong> {land.Land_owner_address}</p>
             <p><strong>Owner Email:</strong> {land.email}</p>
             <p><strong>Owner Phone:</strong> {land.phone_number}</p>
 

@@ -9,8 +9,8 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
-// app.use(cors({ origin: 'http://localhost:3001' }));
+// app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 
 
@@ -23,11 +23,13 @@ mongoose
   })
   .catch((err) => {
     console.log("DB connection error", err);
+    process.exit(1);
+
   });
 
 
 
-  const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
@@ -41,8 +43,8 @@ app.listen(PORT, () => {
 
 
 // Routes
-const UserRoutes = require("./routes/userRoutes");
-app.use(UserRoutes);
+// const UserRoutes = require("./routes/userRoutes");
+// app.use(UserRoutes);
 
 const LandRoutes = require("./routes/landRoutes");
 app.use(LandRoutes);

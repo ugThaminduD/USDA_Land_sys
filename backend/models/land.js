@@ -43,28 +43,30 @@ const LandSchema = new Schema(
         },
         Land_location: { // if there isn't a address
             type: String, 
-            required:true 
+            required:false 
         },
         Area_of_Land: {
             type: String, 
             required:true 
         },
         Land_image: {
-            type: String
+            type: String,
+            required: false
         },
         Land_description: {
             type: String,
-            required: true,
+            required: false
         },
         
 
         local_employee_name: {  // local agent(Grama_Niladhari) in land location
             type: String,
-            required: true
+            required: false
         },
         local_employee_phone_number: {
             type: String,
-            required: true
+            required: false,
+            match: [/^\d{10}$/, "Phone number must be 10 digits"]
         },
 
 
@@ -77,18 +79,31 @@ const LandSchema = new Schema(
             required: true
         },
         
+
         // Land owner details (if there is a owner to land)
+        Land_ownership: {
+            type: String,
+            required: true,  
+            enum: [
+                "Government", "Private Own"
+            ]
+        },
         Land_owner_name: {
             type: String,
             required: true
         },
+        Land_owner_address: {
+            type: String,
+            required: false
+        },
         email: {
             type: String,
-            required: true   
+            required: false   
         },
         phone_number: {
             type: String,
-            required: true
+            required: false,
+            match: [/^\d{10}$/, "Phone number must be 10 digits"]
         },
     
     },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import "./LandList.css"
 
 const LandList = () => {
     const [lands, setLands] = useState([]);
@@ -21,17 +22,58 @@ const LandList = () => {
     };
 
     return (
-        <div>
-            <button>
-                <Link to="/create">Create New Land</Link>
-            </button>
+        <div >
 
-            <h2>Land List</h2>
+            <div className="LandList" >
+
+                <button className="btn btn-primary mb-3">
+                    <Link to="/create" style={{ color: "white", textDecoration: "none" }}>Create New Land</Link>
+                </button>
+
+                <h2>Land Registered List</h2>
+
+                <table className="table table-striped" >
+                    <thead className="thead-dark">
+                        <tr>
+                            <th>Land ID</th>
+                            <th>Province</th>
+                            <th>District</th>
+                            <th>Divisional Secretariat</th>
+                            <th>Grama Niladhari Division</th>
+                            <th>Land Location</th>
+                            <th>Area_of_Land</th>
+                            {/* <th>Land Location</th> */}
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {lands.map(land => (
+                            <tr key={land._id}>
+                                <td>{land._id}</td>
+                                <td>{land.Provinces}</td>
+                                <td>{land.Districts}</td>
+                                <td>{land.Divisional_secretariats}</td>
+                                <td>{land.Grama_Niladhari_divisions}</td>
+                                <td>{land.Land_location}</td>
+                                <td>{land.Area_of_Land}</td>
+                                <td>
+                                    <Link to={`/land/${land._id}`} className="btn btn-info btn-sm me-2">View</Link>
+                                    <Link to={`/edit/land/${land._id}`} className="btn btn-warning btn-sm me-2">Update</Link>
+
+                                    <button onClick={() => handleDelete(land._id)} className="btn btn-danger btn-sm">Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+            </div>
             
-            <ul>
+            {/* link to single land details page */}
+            {/* <ul>
                 {lands.map(land => (
                     <li key={land._id}>
-                                                            {/* link to single land details page */}
+                                                            
                         <Link to={`/land/${land._id}`}> 
                             {land.Provinces} - {land.Districts} - {land.Divisional_secretariats} - {land.Grama_Niladhari_divisions} - {land.Land_location} - 
                         </Link>
@@ -39,7 +81,8 @@ const LandList = () => {
                         <button onClick={() => handleDelete(land._id)}>Delete</button>
                     </li>
                 ))}
-            </ul>
+            </ul> */}
+            
         </div>
     );
 };

@@ -1,6 +1,8 @@
+
 .LandForm {
     color: black;
-    background-color: rgb(184, 178, 178); 
+    /* background-color: rgb(184, 178, 178);  */
+    background-color: #adb5bd;
     background-size: cover; 
     background-position: center; 
     height: auto; 
@@ -10,7 +12,16 @@
     border: solid red;
     border-radius: 10px;
 }
-.LandForm h1 {
+.form-header {
+    text-align: center;
+    color: black;
+    margin-bottom: 50px;
+    /* padding: 30px; */
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: underline;
+  }
+/* .LandForm h2 {
     margin: 20px;
     margin-bottom: 50px;
     padding: 30px;
@@ -18,7 +29,7 @@
     text-align: center;
     text-decoration: underline;
     background-color: bisque;
-}
+} */
 .LandForm h3 {
     color: black;
     /* font-size: 20px;   */
@@ -147,3 +158,17 @@
     color: black;  
     font-size: 18px;
 }
+
+
+/* all the input test fields */
+.form-input, .form-textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.form-textarea {
+    min-height: 80px;
+}
+

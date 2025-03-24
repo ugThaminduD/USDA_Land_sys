@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-// import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { useNavigate, useParams } from 'react-router-dom'; // Import useNavigate for navigation
 import axios from "axios";
 import "./LandForm.css"
 
 
-const LandForm = ({ landId, onSuccess }) => {
+const LandForm = ({ onSuccess }) => {
+    const navigate = useNavigate(); // Initialize useNavigate
+    const { id } = useParams(); // Get landId from URL
+
     const [formData, setFormData] = useState({
         Provinces: "",
         Districts: "",
@@ -22,7 +25,9 @@ const LandForm = ({ landId, onSuccess }) => {
         USDA_Entry_employee_name: "",
         Day_of_Entry: "",
 
+        Land_ownership: "",
         Land_owner_name: "",
+        Land_owner_name_address: "",
         email: "",
         phone_number: ""
     });
@@ -33,7 +38,6 @@ const LandForm = ({ landId, onSuccess }) => {
         "Northern Province", "North Western Province", "Sabaragamuwa Province",
         "Southern Province", "Uva Province", "Western Province"
     ];
-
     const districts = [
         "Ampara", "Anuradhapura", "Badulla", "Batticaloa", 
         "Colombo", "Galle", "Gampaha", "Hambantota", 
@@ -43,41 +47,80 @@ const LandForm = ({ landId, onSuccess }) => {
         "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", 
         "Vavuniya"
     ];
+    const land_ownerships = [
+        "Government", "Private Own"
+    ];
 
 
     useEffect(() => {
-        if (landId) {
-            axios.get(`/get/land/${landId}`)
-                .then(res => setFormData(res.data))
+        // console.log('landId:', id); // Debugging Log the landId
+
+        if (id) {
+            axios.get(`/get/land/${id}`)
+                .then(res => {
+                    // console.log('Fetched Land Data:', res.data); // Debugging Log fetched data
+                    setFormData(res.data);
+                })
                 .catch(err => console.error(err));
         }
-    }, [landId]);
+    }, [id]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
  
 
+    const handleHomeButtonClick = () => {
+        navigate('/'); // Navigate to the home page
+    };
+
     const handleSubmit = (e) => {
+        console.log("Submitting form data:", formData); // Add this line to check the form data
+
         e.preventDefault();
-        const apiCall = landId 
-            ? axios.put(`/update/land/${landId}`, formData)
+        const apiCall = id 
+        
+            ? axios.put(`/update/land/${id}`, formData)
             : axios.post("/add", formData);
         
         apiCall.then(() => {
-            alert(landId ? "Land updated successfully!" : "Land created successfully!");
+            alert(id ? "Land updated successfully!" : "Land created successfully!");
             onSuccess();
-        }).catch(err => console.error(err));
+            // navigate('/'); 
+        }).catch((err) => {
+            console.error(err);
+            // alert("An error occurred. Please try again.");
+        })
     };
 
     
 
     return (
         <div>
-             <form onSubmit={handleSubmit} className="container mt-4" >  {/* */}
+            
+            <form onSubmit={handleSubmit} className="container mt-4"  >  {/* style={{ width: "auto" }}*/}
+                
                 <div className="LandForm" >
 
-                    <h1>{landId ? "Edit Land Entry" : "Create Land Entry"}</h1>
+                    <button
+                        className='btn btn-warning'
+                        onClick={handleHomeButtonClick}
+                        style={{
+                            top: '20px',
+                            left: '20px',
+                            width: '120px',
+                            border: 'solid',
+                            fontSize: '1rem',
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                            fontSize: '20px',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                            transition: 'background-color 0.3s ease'
+                        }}
+                    >
+                        ⬅️ Back
+                    </button>
+                    <h1 className="form-header">{id ? "Edit Land Entry" : "Create Land Entry"}</h1 >
 
                     <h3>Land Location</h3>
                     <div className="container_Land">
@@ -92,7 +135,7 @@ const LandForm = ({ landId, onSuccess }) => {
                                     onChange={handleChange}
                                     required
                                 >
-                                    <option selected>Open this select menu</option>
+                                    <option value="">Select a Province</option>
                                     {provinces.map((province, index) => (
                                         <option key={index} value={province}>
                                             {province}
@@ -110,7 +153,7 @@ const LandForm = ({ landId, onSuccess }) => {
                                     onChange={handleChange}
                                     required
                                 >
-                                    <option selected>Select a District</option>
+                                    <option value="">Select a District</option>
                                     {districts.map((district, index) => (
                                         <option key={index} value={district}>
                                             {district}
@@ -125,19 +168,19 @@ const LandForm = ({ landId, onSuccess }) => {
                                 <label >Divisional Secretariats:</label>
                                 <input type="text" 
                                     name="Divisional_secretariats" 
-                                    className="form-control"
+                                    className="form-input"
                                     placeholder="Divisional Secretariat" 
                                     value={formData.Divisional_secretariats} 
-                                    nChange={handleChange} 
+                                    onChange={handleChange} 
                                     required 
                                 />
                             </div>
 
-                            <div  >
+                            <div>
                                 <label >Grama Niladhari Divisions:</label>
                                 <input type="text" 
                                     name="Grama_Niladhari_divisions" 
-                                    className="form-control"
+                                    className="form-input"
                                     placeholder="Grama Niladhari Divisions" 
                                     value={formData.Grama_Niladhari_divisions} 
                                     onChange={handleChange} 
@@ -155,7 +198,7 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Land_address:</label>
                             <input type="text" 
                                 name="Land_address" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Land Address" 
                                 value={formData.Land_address} 
                                 onChange={handleChange} 
@@ -166,7 +209,7 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Land_location:</label>
                             <input type="text" 
                                 name="Land_location" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Land Location" 
                                 value={formData.Land_location} 
                                 onChange={handleChange} 
@@ -177,7 +220,7 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Area_of_Land:</label>
                             <input type="text" 
                                 name="Area_of_Land" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Area of Land" 
                                 value={formData.Area_of_Land} 
                                 onChange={handleChange} 
@@ -188,7 +231,7 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Land Description:</label>
                             <input type="text" 
                                 name="Land_description" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Land Description" 
                                 value={formData.Land_description} 
                                 onChange={handleChange} 
@@ -201,14 +244,22 @@ const LandForm = ({ landId, onSuccess }) => {
                     <h3>Land Ownership</h3>
                     <div className="container_Ownership">
 
-                    <div className="sec04">
+                        <div className="sec04">
                             <div>
                                 <label  >Land Ownership:</label>
-                                <select class="form-select"  aria-label="Default select example">
-                                    <option selected>Open this select menu</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
+                                <select class="form-select"  
+                                    aria-label="Default select example"
+                                    name="Land_ownership" 
+                                    value={formData.Land_ownership} 
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option selected>Select Land Ownership</option>
+                                    {land_ownerships.map((land_ownership, index) => (
+                                        <option key={index} value={land_ownership}>
+                                            {land_ownership}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -217,9 +268,21 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Land owner name:</label>
                             <input type="text" 
                                 name="Land_owner_name" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Owner Name" 
                                 value={formData.Land_owner_name} 
+                                onChange={handleChange} 
+                                required 
+                            />
+                        </div>
+                        
+                        <div className="sec03">
+                            <label  >Land owner Address:</label>
+                            <input type="text" 
+                                name="Land_owner_address" 
+                                className="form-input"
+                                placeholder="Owner Name Address" 
+                                value={formData.Land_owner_address} 
                                 onChange={handleChange} 
                                 required 
                             />
@@ -229,7 +292,7 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Email:</label>
                             <input type="email" 
                                 name="email" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Email" 
                                 value={formData.email} 
                                 onChange={handleChange} 
@@ -241,7 +304,7 @@ const LandForm = ({ landId, onSuccess }) => {
                             <label  >Phone Number:</label>
                             <input type="text" 
                                 name="phone_number" 
-                                className="form-control"
+                                className="form-input"
                                 placeholder="Phone Number" 
                                 value={formData.phone_number} 
                                 onChange={handleChange} 
@@ -250,7 +313,12 @@ const LandForm = ({ landId, onSuccess }) => {
                         </div>
                     </div>
                     
-                    <button type="submit">{landId ? "Update Land" : "Create Land"}</button>
+                    <button type="submit" className="btn btn-primary">
+                        {id ? "Update Land" : "Create Land"}
+                    </button>
+                    <button className='btn btn-warning' onClick={handleHomeButtonClick} >
+                        ⬅️ Back
+                    </button>
 
                 </div>
             </form>

@@ -1,8 +1,11 @@
 const LandModel = require('../models/Land');
 
+
 // Create a new land entry
 const createLand = async (req, res) => {
     try {
+        // console.log("Received Data:", req.body); // Debugging
+
         const land = new LandModel(req.body);
         await land.save();
         res.status(201).json({ message: 'Land entry created successfully', land });
@@ -15,12 +18,13 @@ const createLand = async (req, res) => {
 const getAllLands = async (req, res) => {
     try {
 
-        const { Provinces, Districts, Divisional_secretariats, Land_owner_name } = req.query;
+        const { Provinces, Districts, Divisional_secretariats, Land_ownership, Land_owner_name } = req.query;
         let query = {};
 
         if (Provinces) query.Provinces = { $regex: Provinces, $options: 'i' }; // Case-insensitive search
         if (Districts) query.Districts = { $regex: Districts, $options: 'i' };
         if (Divisional_secretariats) query.Divisional_secretariats = { $regex: Divisional_secretariats, $options: 'i' };
+        if (Land_ownership) query.Land_ownership = { $regex: Land_ownership, $options: 'i' };
         if (Land_owner_name) query.Land_owner_name = { $regex: Land_owner_name, $options: 'i' };
 
         const lands = await LandModel.find(query);
