@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
+const path = require('path');
 const app = express();
 
 
@@ -49,6 +49,7 @@ app.listen(PORT, () => {
 const LandRoutes = require("./routes/landRoutes");
 app.use(LandRoutes);
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 module.exports = app;

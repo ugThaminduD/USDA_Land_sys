@@ -1,9 +1,7 @@
-// import logo from './logo.svg';
 import './App.css';
-
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { ChakraProvider } from '@chakra-ui/react';
+import { CssBaseline } from '@mui/material'; // Add this for consistent baseline styles
 
 
 import LandList from "../src/components/Planning & Monitoring Division/LandList";
@@ -15,17 +13,17 @@ import LandInput from "../src/components/Planning & Monitoring Division/LandInpu
 
 function App() {
   return (
-    <ChakraProvider>
       <Router>
+        <CssBaseline />
         <Routes>
-          <Route path="/input" element={<LandInput />} />
+          <Route path="/input" element={<LandInput onSuccess={() => window.location.reload()} />} />
+          <Route path="/edit/land/:id" element={<LandInput />} />
           <Route path="/" element={<LandList />} />
-          <Route path="/create" element={<LandForm onSuccess={() => window.location.reload()} />} />
+          {/* <Route path="/create" element={<LandForm onSuccess={() => window.location.reload()} />} /> */}
           <Route path="/land/:id" element={<LandDetails />} />
-          <Route path="/edit/land/:id" element={<LandForm />} />
+          {/* <Route path="/edit/land/:id" element={<LandForm />} /> */}
         </Routes>
       </Router>
-    </ChakraProvider>
   );
 }
 

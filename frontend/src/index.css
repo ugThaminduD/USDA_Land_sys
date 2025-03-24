@@ -6,8 +6,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  background: url('../public/images/letterformbg.jpg') no-repeat center center/cover;
-  background-attachment: fixed;
+  /* background: url('../public/images/letterformbg.jpg') no-repeat center center/cover;
+  background-attachment: fixed; */
 }
 
 code {
