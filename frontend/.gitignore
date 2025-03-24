@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/src/App.test.js
+/src/setupTests.js
+/src/reportWebVitals.js
 
 # production
 /build
@@ -24,4 +27,5 @@ yarn-error.log*
 
 
 /public
-/src
+# /src/components
+/src/components/Planning & Monitoring Division/LandInput.js

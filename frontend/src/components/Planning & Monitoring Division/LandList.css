@@ -1,0 +1,23 @@
+.LandList {
+    border-radius: 10px;
+    border: solid white;
+    height: auto; 
+    width: auto;
+    padding: 20px;
+    margin: 50px 20px 50px 20px;
+}
+.LandList h2 {
+    margin: 20px;
+    margin-bottom: 50px;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: underline;
+    background-color: bisque;
+}
+.LandList table {
+    border-radius: 10px;
+    border: solid red;
+    height: auto;
+    text-align: center;
+}
