@@ -28,4 +28,4 @@ yarn-error.log*
 
 /public
 # /src/components
-/src/components/Planning & Monitoring Division/LandInput.js
+# /src/components/Planning & Monitoring Division/LandInput.js
