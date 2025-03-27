@@ -13,7 +13,8 @@ import {
     CircularProgress,
     Chip,
     Stack,
-    Button
+    Button, Link, List,
+    ListItem, ListItemIcon, ListItemText,
 } from "@mui/material";
 import {
     LocationOn,
@@ -23,7 +24,8 @@ import {
     Email,
     CalendarToday,
     Business,
-    Home, ArrowBack
+    Home, ArrowBack, PictureAsPdf,
+    InsertDriveFile,
 } from "@mui/icons-material";
 
 
@@ -34,7 +36,10 @@ const LandDetails = () => {
 
     useEffect(() => {
         axios.get(`/get/land/${id}`)
-            .then(res => setLand(res.data))
+            .then(res => {
+                setLand(res.data)
+                console.log('Land data:', res.data)
+            })
             .catch(err => console.error(err));
     }, [id]);
 
@@ -45,40 +50,6 @@ const LandDetails = () => {
         </Box>
     );
 
-    // return (
-    //     <div>
-    //         <h2>Land Location</h2>
-    //         <p><strong>Province:</strong> {land.Provinces}</p>
-    //         <p><strong>District:</strong> {land.Districts}</p>
-    //         <p><strong>Divisional Secretariat:</strong> {land.Divisional_secretariats}</p>
-    //         <p><strong>Grama Niladhari Division:</strong> {land.Grama_Niladhari_divisions}</p>
-
-    //         <h3>Land Details</h3>
-    //         <p><strong>Land Address:</strong> {land.Land_address || "Not provided"}</p>
-    //         <p><strong>Land Location:</strong> {land.Land_location}</p>
-    //         <p><strong>Area of Land:</strong> {land.Area_of_Land}</p>
-    //         <p><strong>Description:</strong> {land.Land_description}</p>
-    //         <p><strong>Land Image:</strong> {land.Land_image ? <img src={land.Land_image} alt="Land Photos" /> : "No image available"}</p>
-
-    //         <h3>Local Agent</h3>
-    //         <p><strong>Local Agent Name:</strong> {land.local_employee_name}</p>
-    //         <p><strong>Local Agent Phone:</strong> {land.local_employee_phone_number}</p>
-
-    //         <h3>USDA Entry Details</h3>
-    //         <p><strong>USDA Entry Employee Name:</strong> {land.USDA_Entry_employee_name}</p>
-    //         <p><strong>Day of Entry:</strong> {new Date(land.Day_of_Entry).toLocaleDateString()}</p>
-
-    //         <h3>Owner Details</h3>
-    //         <p><strong>Land Ownership:</strong> {land.Land_ownership}</p>
-    //         <p><strong>Land Owner Name:</strong> {land.Land_owner_name}</p>
-    //         <p><strong>Land Owner Address:</strong> {land.Land_owner_address}</p>
-    //         <p><strong>Owner Email:</strong> {land.email}</p>
-    //         <p><strong>Owner Phone:</strong> {land.phone_number}</p>
-
-    //         <p><strong>Last Updated:</strong> {new Date(land.updatedAt).toLocaleDateString()}</p>
-    //         <p><strong>Created On:</strong> {new Date(land.createdAt).toLocaleDateString()}</p>
-    //     </div>
-    // );
 
 
     return (
@@ -167,20 +138,125 @@ const LandDetails = () => {
                     </Grid>
 
                     {/* Land Image */}
-                    <Grid item xs={12} md={4}>
-                        {land.Land_image ? (
-                            <Card elevation={2}>
-                                <CardMedia
-                                    component="img"
-                                    height="250"
-                                    image={land.Land_image}
-                                    alt="Land Photos"
-                                    sx={{ objectFit: 'cover' }}
-                                />
-                            </Card>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h6" gutterBottom>Land Images</Typography>
+                        {land.Land_images && land.Land_images.length > 0 ? (
+                            <Grid container spacing={2}>
+                                {land.Land_images.map((image, index) => (
+                                    <Grid item xs={6} key={index}>
+                                        <Card elevation={2}>
+                                            <CardMedia
+                                                component="img"
+                                                height="150"
+                                                image={image}
+                                                alt={`Land Photo ${index + 1}`}
+                                                sx={{ objectFit: 'cover' }}
+                                            />
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
                         ) : (
                             <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.100' }}>
-                                <Typography color="textSecondary">No image available</Typography>
+                                <Typography color="textSecondary">No images available</Typography>
+                            </Paper>
+                        )}
+                    </Grid>
+
+                    {/* Land Documents */}
+                    {/* <Grid item xs={12} md={6}>
+                        <Typography variant="h6" gutterBottom>Land Documents</Typography>
+                        {land.Land_documents && land.Land_documents.length > 0 ? (
+                            <List>
+                                {land.Land_documents.map((doc, index) => (
+                                    <ListItem key={index} 
+                                        component={Paper} 
+                                        sx={{ mb: 1, p: 1, borderRadius: 1 }}
+                                    >
+                                        <ListItemIcon>
+                                            {doc.toLowerCase().endsWith('.pdf') 
+                                                ? <PictureAsPdf color="error" /> 
+                                                : <InsertDriveFile color="info" />
+                                            }
+                                        </ListItemIcon>
+                                        <ListItemText 
+                                            primary={doc.split('/').pop()} 
+                                            secondary={
+                                                <Link 
+                                                    href={doc} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    View Document
+                                                </Link>
+                                            }
+                                        />
+                                    </ListItem>
+                                ))}
+                            </List>
+                        ) : (
+                            <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.100' }}>
+                                <Typography color="textSecondary">No documents available</Typography>
+                            </Paper>
+                        )}
+                    </Grid> */}
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h6" gutterBottom>Land Documents</Typography>
+                        {land.Land_documents && land.Land_documents.length > 0 ? (
+                            <List>
+                                {land.Land_documents.map((doc, index) => (
+                                    <ListItem key={index} 
+                                    component={Paper} 
+                                    sx={{ mb: 1, p: 1, borderRadius: 1 }}
+                                    >
+                                    <ListItemIcon>
+                                        {doc.toLowerCase().endsWith('.pdf') 
+                                        ? <PictureAsPdf color="error" /> 
+                                        : <InsertDriveFile color="info" />
+                                        }
+                                    </ListItemIcon>
+                                    <ListItemText 
+                                        primary={doc.split('/').pop()} 
+                                        secondary={
+                                        doc.toLowerCase().endsWith('.pdf') ? (
+                                            <Link
+                                            href={doc}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                window.open(doc, '_blank', 'noopener,noreferrer');
+                                            }}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                textDecoration: 'underline'
+                                                }
+                                            }}
+                                            >
+                                            View PDF
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                            href={doc}
+                                            download
+                                            sx={{
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                textDecoration: 'underline'
+                                                }
+                                            }}
+                                            >
+                                            Download Document
+                                            </Link>
+                                        )
+                                        }
+                                    />
+                                    </ListItem>
+                                ))}
+                            </List>
+                        ) : (
+                            <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'grey.100' }}>
+                            <Typography color="textSecondary">No documents available</Typography>
                             </Paper>
                         )}
                     </Grid>
