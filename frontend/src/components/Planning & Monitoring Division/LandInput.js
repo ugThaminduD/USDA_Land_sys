@@ -17,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilePresentIcon from '@mui/icons-material/FilePresent';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from "axios";
 
 const VisuallyHiddenInput = styled('input')({
@@ -521,6 +522,7 @@ const LandInput = () => {
       py: 5,
     }}>
 
+      {/* Land Registration Form */}
       <Container maxWidth="lg" sx={{ 
         backgroundColor: 'white',
         borderRadius: 2,
@@ -535,6 +537,7 @@ const LandInput = () => {
             <Button
               variant="outlined"
               onClick={() => navigate('/')}
+              startIcon={<ArrowBackIcon />}
               sx={{ 
                 mb: 2,
                 color: 'black',

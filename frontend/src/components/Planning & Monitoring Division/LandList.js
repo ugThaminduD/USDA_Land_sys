@@ -23,6 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 
 
@@ -78,12 +79,6 @@ const LandList = () => {
     const land_ownerships = ["Government", "Private Own"];
 
 
-    // useEffect(() => {
-    //     axios.get("/getALL/lands")
-    //         .then(res => setLands(res.data))
-    //         .catch(err => console.error(err));
-    // }, []);
-
 
     useEffect(() => {
         const fetchLands = async () => {
@@ -103,6 +98,7 @@ const LandList = () => {
 
         fetchLands();
     }, [searchCriteria]); // Re-fetch when search criteria changes
+
 
     // Handle search input changes
     const handleSearchChange = (event) => {
@@ -131,7 +127,7 @@ const LandList = () => {
             background: 'linear-gradient(to right bottom,rgb(245, 220, 198),rgb(255, 140, 0))',
             minHeight: '100vh',
             py: 5,
-          }}>
+        }}>
 
             {/* Search Section */}
             <Box sx={{ 
@@ -261,18 +257,41 @@ const LandList = () => {
 
             </Box>
 
-            {/* Create New Land Action Button */}
-            <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                component={Link}
-                to="/input"
-                sx={{ mb: 3, mt: 3 }}
-            >
-                Create New Land
-            </Button>
 
+            {/* Create Action Button */}
+            <Box sx={{ display: 'flex', gap: 2, mb: 3, mt: 3 }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    component={Link}
+                    to="/input"
+                >
+                    Create New Land
+                </Button>
+                
+                <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<CloudUploadIcon />}
+                    component={Link}
+                    to="/upload/excelDocument"
+                    sx={{ backgroundColor: '#4caf50' }}
+                >
+                    Upload Excel File
+                </Button>
+                
+                <Button
+                    variant="contained"
+                    color="info"
+                    startIcon={<VisibilityIcon />}
+                    component={Link}
+                    to="/excel/files"
+                    sx={{ backgroundColor: '#2196f3' }}
+                >
+                    View Excel Data
+                </Button>
+            </Box>
 
 
             <Box sx={{ 
@@ -284,6 +303,7 @@ const LandList = () => {
                 borderRadius: 2, // Rounded corners
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Subtle shadow
             }}>
+
                 <Typography variant="h4" component="h2" gutterBottom>
                     Land Registered List
                 </Typography>
@@ -343,10 +363,11 @@ const LandList = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+
             </Box>  
+
         </Container>
     );
-
 
 };
 

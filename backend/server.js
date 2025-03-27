@@ -58,8 +58,13 @@ app.listen(PORT, () => {
 // app.use(UserRoutes);
 
 const LandRoutes = require("./routes/landRoutes");
-app.use(checkAPIKey, LandRoutes);
+app.use(LandRoutes);
+// app.use(checkAPIKey, LandRoutes);
 
 app.use('/uploads', express.static('uploads'));
+
+const ExcelRoutes = require("./routes/excelRoutes");
+app.use(ExcelRoutes);
+
 
 module.exports = app;
