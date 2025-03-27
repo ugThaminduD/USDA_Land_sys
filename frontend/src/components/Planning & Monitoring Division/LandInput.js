@@ -5,7 +5,7 @@ import {
   MenuItem,
   Grid,
   Container,
-  Typography,
+  Typography, Link,
   Stack, Alert, Snackbar, IconButton
 } from "@mui/material";
 
@@ -14,6 +14,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { CloudUpload } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import DeleteIcon from '@mui/icons-material/Delete';
+import FilePresentIcon from '@mui/icons-material/FilePresent';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DescriptionIcon from '@mui/icons-material/Description';
 import axios from "axios";
 
 const VisuallyHiddenInput = styled('input')({
@@ -34,6 +37,8 @@ const LandInput = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [documentPreviews, setDocumentPreviews] = useState([]);
   const navigate = useNavigate();
   const [toast, setToast] = useState({
     open: false,
@@ -54,6 +59,8 @@ const LandInput = () => {
     Land_location: "",
     Area_of_Land: "",
     Land_description: "",
+    Land_images: [],
+    Land_documents: [],
 
     local_employee_name: "",
     local_employee_phone_number: "",
@@ -96,6 +103,7 @@ const LandInput = () => {
     }
   }, [id]); 
 
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -132,19 +140,81 @@ const LandInput = () => {
   // Handle image change
   const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
-    setSelectedImages(prev => [...prev, ...files]);
     
-    const newPreviews = files.map(file => URL.createObjectURL(file));
+    // Check number of files
+    if (selectedImages.length + files.length > 5) {
+      setToast({
+        open: true,
+        message: "Maximum 5 images allowed",
+        severity: "error"
+      });
+      return;
+    }
+    
+    // Validate each file
+    const validFiles = files.filter(file => validateImage(file));
+    
+    setSelectedImages(prev => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map(file => URL.createObjectURL(file));
     setImagePreviews(prev => [...prev, ...newPreviews]);
   };
 
-  // Handle remove image
-  const handleRemoveImage = (index) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  // Handle remove existing image
+  const handleRemoveExistingImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      Land_images: prev.Land_images.filter((_, i) => i !== index)
+    }));
+    
+    setToast({
+      open: true,
+      message: "Image removed. Save changes to update.",
+      severity: "info"
+    });
   };
 
-  // Submit form
+  // Handle document change
+  const handleDocumentChange = (event) => {
+    const files = Array.from(event.target.files);
+    
+    // Check number of files
+    if (selectedDocuments.length + files.length > 5) {
+      setToast({
+        open: true,
+        message: "Maximum 5 documents allowed",
+        severity: "error"
+      });
+      return;
+    }
+    
+    // Validate each file
+    const validFiles = files.filter(file => validateDocument(file));
+    
+    setSelectedDocuments(prev => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map(file => ({
+      name: file.name,
+      type: file.type,
+      size: (file.size / 1024).toFixed(1) + ' KB'
+    }));
+    setDocumentPreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  // Handle remove existing document
+  const handleRemoveExistingDocument = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      Land_documents: prev.Land_documents.filter((_, i) => i !== index)
+    }));
+    
+    setToast({
+      open: true,
+      message: "Document removed. Save changes to update.",
+      severity: "info"
+    });
+  };
+
+
+  // Handle Full Land Registration Submission Form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -175,26 +245,71 @@ const LandInput = () => {
     try {
 
       let imageUrls = formData.Land_images || []; // Keep existing images
+      let documentUrls = formData.Land_documents || []; // Keep existing documents
 
       // Upload new images if any are selected
       if (selectedImages.length > 0) {
-        const formData = new FormData();
+        const imageFormData = new FormData();
         selectedImages.forEach(image => {
-            formData.append('images', image);
+          imageFormData.append('images', image);
         });
         
         try {
-          const uploadResponse = await axios.post('/upload/images', formData, {
+          const uploadResponse = await axios.post('/upload/images', imageFormData, {
             headers: {
               'Content-Type': 'multipart/form-data'
+            },
+            onUploadProgress: (progressEvent) => {
+              // Optional: Add upload progress handling
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`Image Upload Progress: ${progress}%`);
             }
           });
+          
+          if (!uploadResponse.data.imageUrls) {
+            throw new Error('No image URLs returned from server');
+          }
+          
           imageUrls = [...imageUrls, ...uploadResponse.data.imageUrls];
         } catch (error) {
           console.error('Error uploading images:', error);
           setToast({
             open: true,
-            message: "Failed to upload images. Please try again.",
+            message: `Failed to upload images: ${error.response?.data?.error || error.message}`,
+            severity: "error"
+          });
+          return;
+        }
+      }
+
+      // Upload new documents if any are selected
+      if (selectedDocuments.length > 0) {
+        const docFormData = new FormData();
+        selectedDocuments.forEach(doc => {
+          docFormData.append('documents', doc);
+        });
+        
+        try {
+          const uploadResponse = await axios.post('/upload/documents', docFormData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            },
+            onUploadProgress: (progressEvent) => {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`Document Upload Progress: ${progress}%`);
+            }
+          });
+          
+          if (!uploadResponse.data.documentUrls) {
+            throw new Error('No document URLs returned from server');
+          }
+          
+          documentUrls = [...documentUrls, ...uploadResponse.data.documentUrls];
+        } catch (error) {
+          console.error('Error uploading documents:', error);
+          setToast({
+            open: true,
+            message: `Failed to upload documents: ${error.response?.data?.error || error.message}`,
             severity: "error"
           });
           return;
@@ -205,7 +320,8 @@ const LandInput = () => {
       const formattedData = {
         ...formData,
         Day_of_Entry: new Date(formData.Day_of_Entry).toISOString(),
-        Land_images: imageUrls
+        Land_images: imageUrls,
+        Land_documents: documentUrls
       };
 
       // Choose API endpoint based on whether we're updating or creating
@@ -226,6 +342,7 @@ const LandInput = () => {
         });
         
         // Add navigation after successful submission
+        // Wait 1.5 seconds to show the success message before navigating
         setTimeout(() => {
           if (id) {
               navigate('/'); // For updates, go to list page
@@ -239,6 +356,8 @@ const LandInput = () => {
                   Land_location: "",
                   Area_of_Land: "",
                   Land_description: "",
+                  Land_images: [],
+                  Land_documents: [],
                   local_employee_name: "",
                   local_employee_phone_number: "",
                   USDA_Entry_employee_name: "",
@@ -249,9 +368,14 @@ const LandInput = () => {
                   email: "",
                   phone_number: "",
               });
+              // Also reset the preview states
+              setSelectedImages([]);
+              setImagePreviews([]);
+              setSelectedDocuments([]);
+              setDocumentPreviews([]);
               // navigate('/'); // For new entries, go to list page
           }
-        }, 1500); // Wait 1.5 seconds to show the success message before navigating
+        }, 1500); 
       }
 
     } catch (error) {
@@ -269,7 +393,8 @@ const LandInput = () => {
     }
   };
 
-  // Validation functions
+
+  // Validation email, phone functions
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
@@ -279,6 +404,66 @@ const LandInput = () => {
     const regex = /^[0-9]{10}$/;
     return regex.test(phone);
   };
+
+  // Validate image
+  const validateImage = (file) => {
+    // Size validation (5MB)
+    if (file.size > 20 * 1024 * 1024) {
+      setToast({
+        open: true,
+        message: `Image ${file.name} is too large. Maximum size is 20MB`,
+        severity: "error"
+      });
+      return false;
+    }
+    
+    // Type validation
+    if (!file.type.startsWith('image/')) {
+      setToast({
+        open: true,
+        message: `File ${file.name} is not an image`,
+        severity: "error"
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  // Validate document
+  const validateDocument = (file) => {
+    // Size validation (10MB)
+    if (file.size > 100 * 1024 * 1024) {
+      setToast({
+        open: true,
+        message: `Document ${file.name} is too large. Maximum size is 100MB`,
+        severity: "error"
+      });
+      return false;
+    }
+    
+    // Type validation
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain'
+    ];
+    
+    if (!allowedTypes.includes(file.type)) {
+      setToast({
+        open: true,
+        message: `File ${file.name} type not supported. Only PDF, DOC, DOCX, XLS, XLSX, and TXT files are allowed`,
+        severity: "error"
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
 
   // Close toast alert msg
   const handleCloseToast = () => {
@@ -375,7 +560,7 @@ const LandInput = () => {
             }}
           > Land Registration Form </Typography>
 
-          {/* Submission Form */}
+          {/* Full Land Registration Submission Form */}
           <Box component="form" 
             onSubmit={handleSubmit}
             sx={{
@@ -503,6 +688,7 @@ const LandInput = () => {
                   />
                 </Grid>
 
+                {/* Land Images */}
                 <Grid item xs={12} md={6}>
                   <Box sx={{ 
                     border: '2px dashed rgba(255, 94, 0, 0.5)', // Changed to match your theme
@@ -563,7 +749,7 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveImage(index)}
+                              onClick={() => handleRemoveExistingImage(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -587,6 +773,183 @@ const LandInput = () => {
                                 objectFit: 'cover',
                               }}
                             />
+                            {/* Add delete button for existing images */}
+                            <IconButton
+                              sx={{
+                                position: 'absolute',
+                                top: 4,
+                                right: 4,
+                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                  color: 'white'
+                                },
+                                padding: '4px',
+                                size: 'small'
+                              }}
+                              onClick={() => handleRemoveExistingImage(index)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                </Grid>
+
+                {/* Land Documents */}
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ 
+                    border: '2px dashed rgba(0, 120, 255, 0.5)', // Different color for documents
+                    p: 3,
+                    borderRadius: 2,
+                    textAlign: 'center',
+                    bgcolor: 'rgba(230, 240, 255, 0.2)', // Light blue background
+                    minHeight: '300px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2
+                  }}>
+                    <Button
+                      component="label"
+                      variant="contained"
+                      startIcon={<FilePresentIcon />}
+                      sx={{ mb: 2, bgcolor: 'info.main' }}
+                    >
+                      Upload Documents
+                      <VisuallyHiddenInput 
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                        multiple
+                        onChange={handleDocumentChange}
+                      />
+                    </Button>
+                    
+                    <Grid container spacing={2} sx={{ mt: 2 }}>
+                      {documentPreviews.map((doc, index) => (
+                        <Grid item xs={12} key={index}>
+                          <Box sx={{ 
+                            position: 'relative',
+                            borderRadius: '8px',
+                            p: 2,
+                            bgcolor: 'background.paper',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            {doc.type.includes('pdf') ? 
+                              <PictureAsPdfIcon color="error" sx={{ mr: 1 }} /> : 
+                              <DescriptionIcon color="info" sx={{ mr: 1 }} />
+                            }
+                            <Box sx={{ flexGrow: 1 }}>
+                              <Typography variant="body2" noWrap>{doc.name}</Typography>
+                              <Typography variant="caption" color="textSecondary">{doc.size}</Typography>
+                            </Box>
+                            <IconButton
+                              sx={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                  color: 'white'
+                                },
+                                padding: '4px',
+                                size: 'small'
+                              }}
+                              onClick={() => handleRemoveExistingDocument(index)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Grid>
+                      ))}
+                      {formData.Land_documents && formData.Land_documents.map((docUrl, index) => (
+                        <Grid item xs={12} key={`existing-doc-${index}`}>
+                          <Box sx={{ 
+                            position: 'relative',
+                            borderRadius: '8px',
+                            p: 2,
+                            bgcolor: 'background.paper',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            width: '100%',
+                            overflow: 'hidden'
+                          }}>
+                            {docUrl.toLowerCase().endsWith('.pdf') ? 
+                              <PictureAsPdfIcon color="error" sx={{ mr: 1, flexShrink: 0 }} /> : 
+                              <DescriptionIcon color="info" sx={{ mr: 1, flexShrink: 0 }} />
+                            }
+                            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                              <Typography variant="body2" noWrap 
+                                sx={{ 
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  width: '100%'
+                                }}
+                              >
+                                {docUrl.split('/').pop()}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary"
+                                sx={{
+                                  display: 'block',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis'
+                                }}
+                              >
+                                {/* For PDFs, open in new tab with PDF viewer */}
+                                {docUrl.toLowerCase().endsWith('.pdf') ? (
+                                  <Link
+                                    href={docUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                      textDecoration: 'none',
+                                      '&:hover': {
+                                        textDecoration: 'underline'
+                                      }
+                                    }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      window.open(docUrl, '_blank', 'noopener,noreferrer');
+                                    }}
+                                  >
+                                    View PDF
+                                  </Link>
+                                ) : (
+                                  // For other documents, regular download
+                                  <Link
+                                    href={docUrl}
+                                    download
+                                    sx={{
+                                      textDecoration: 'none',
+                                      '&:hover': {
+                                        textDecoration: 'underline'
+                                      }
+                                    }}
+                                  >
+                                    Download Document
+                                  </Link>
+                                )}
+                              </Typography>
+                            </Box>
+                            {/* Add delete button for existing documents */}
+                            <IconButton
+                              sx={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                  color: 'white'
+                                },
+                                padding: '4px',
+                                size: 'small',
+                                flexShrink: 0
+                              }}
+                              onClick={() => handleRemoveExistingDocument(index)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
                           </Box>
                         </Grid>
                       ))}
@@ -596,7 +959,6 @@ const LandInput = () => {
 
               </Grid>
               
-
               {/* Local Employee Details */}
               <Typography variant="h5" gutterBottom>Local Employee Details</Typography>
               <Grid container spacing={3} >

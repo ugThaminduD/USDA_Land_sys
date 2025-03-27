@@ -49,7 +49,11 @@ const LandSchema = new Schema(
             type: String, 
             required:true 
         },
-        Land_image: [{
+        Land_images: [{
+            type: String,
+            required: false
+        }],
+        Land_documents: [{  
             type: String,
             required: false
         }],

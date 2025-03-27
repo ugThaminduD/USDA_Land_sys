@@ -13,6 +13,17 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000' }));
 
 
+const API_KEY = process.env.API_KEY ; // fallback only for development
+
+// Middleware to check API key in request headers
+function checkAPIKey(req, res, next) {
+  const apiKey = req.headers['authorization'];
+  if (apiKey && apiKey === `Bearer ${API_KEY}`) {
+    return next();
+  } else {
+    return res.status(403).send('Forbidden: Invalid API Key');
+  }
+}
 
 // DB onnection => MongoDB
 const MONGO_DB_URL = process.env.MONGO_DB_URL;
@@ -47,9 +58,8 @@ app.listen(PORT, () => {
 // app.use(UserRoutes);
 
 const LandRoutes = require("./routes/landRoutes");
-app.use(LandRoutes);
+app.use(checkAPIKey, LandRoutes);
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use('/uploads', express.static('uploads'));
 
 module.exports = app;
