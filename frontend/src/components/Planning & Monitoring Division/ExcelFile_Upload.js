@@ -6,7 +6,7 @@ import {
   Typography, 
   Paper, 
   CircularProgress, 
-  Alert, 
+  Alert,  
   Snackbar,
   Container,
   TextField
@@ -48,6 +48,13 @@ const FileUpload = () => {
       return;
     }
 
+    // Add file size check on frontend
+    if (selectedFile.size > 100 * 1024 * 1024) { // 100MB in bytes
+      setError("File size too large. Maximum size allowed is 100MB");
+      setOpenSnackbar(true);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', selectedFile);
     formData.append('topic', topic || "General");
@@ -65,10 +72,16 @@ const FileUpload = () => {
         setSuccess(true);
         setSelectedFile(null);
         setTopic("");
-        setTimeout(() => setSuccess(false), 3000);
+        setTimeout(() => {
+          setSuccess(false);
+          navigate('/excel/files'); // Redirect to files list after successful upload
+        }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Error uploading file");
+      const errorMessage = err.response?.data?.message || 
+                        "Error uploading file. Please ensure the file is a valid Excel file with proper data structure.";
+      console.error("Upload error:", err);
+      setError(errorMessage);
       setOpenSnackbar(true);
     } finally {
       setLoading(false);
