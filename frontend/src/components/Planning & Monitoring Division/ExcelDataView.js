@@ -38,6 +38,8 @@ const ExcelDataView = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [headers, setHeaders] = useState([]);
+    const [sheetName, setSheetName] = useState(''); // For multi-sheet files
+    const [parentFile, setParentFile] = useState(''); // For multi-sheet files
     const navigate = useNavigate();
 
 
@@ -48,36 +50,38 @@ const ExcelDataView = () => {
             
             let response;
             if (id) {
-            // Fetch specific file data
-            response = await axios.get(`/excel/file/${id}`);
-            if (response.data.success) {
-                setExcelData(response.data.data || []);
-                setFileName(response.data.fileName || '');
-                setTopic(response.data.topic || '');
-                setUploadDate(response.data.uploadDate || null);
-            }
+                // Fetch specific file data
+                response = await axios.get(`/excel/file/${id}`);
+                if (response.data.success) {
+                    setExcelData(response.data.data || []);
+                    setFileName(response.data.fileName || '');
+                    setTopic(response.data.topic || '');
+                    setSheetName(response.data.sheetName || '');
+                    setParentFile(response.data.parentFile || '');
+                    setUploadDate(response.data.uploadDate || null);
+                }
             } else {
-            // Fetch all data (backwards compatibility)
-            response = await axios.get('/data');
-            if (response.data.success) {
-                setExcelData(response.data.data || []);
-                setFileName('All Excel Data');
-            }
+                // Fetch all data (backwards compatibility)
+                response = await axios.get('/data');
+                if (response.data.success) {
+                    setExcelData(response.data.data || []);
+                    setFileName('All Excel Data');
+                }
             }
             
             // Extract headers
             if (response.data.success && 
                 ((id && response.data.data && response.data.data.length > 0) || 
                 (!id && response.data.data && response.data.data.length > 0))) {
-            // Use first item to determine headers
-            const firstItem = id ? response.data.data[0] : response.data.data[0];
-            if (firstItem) {
-                setHeaders(Object.keys(firstItem).filter(key => key !== '_id' && key !== '__v'));
-            }
+                    // Use first item to determine headers
+                    const firstItem = id ? response.data.data[0] : response.data.data[0];
+                    if (firstItem) {
+                        setHeaders(Object.keys(firstItem).filter(key => key !== '_id' && key !== '__v'));
+                    }
             } else {
-            if (!id) {
-                setError('No data found');
-            }
+                if (!id) {
+                    setError('No data found');
+                }
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to fetch Excel data');
@@ -166,6 +170,22 @@ const ExcelDataView = () => {
                             variant="outlined" 
                             sx={{ mr: 1, mb: 1 }} 
                         />
+                        {sheetName && (
+                            <Chip 
+                                label={`Sheet: ${sheetName}`} 
+                                variant="outlined"
+                                color="info"
+                                sx={{ mr: 1, mb: 1 }} 
+                            />
+                        )}
+                        {parentFile && (
+                            <Chip 
+                                label={`From: ${parentFile}`} 
+                                variant="outlined"
+                                color="secondary"
+                                sx={{ mr: 1, mb: 1 }} 
+                            />
+                        )}
                         {uploadDate && (
                             <Chip 
                                 label={`Uploaded: ${formatDate(uploadDate)}`} 

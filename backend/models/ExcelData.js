@@ -14,9 +14,25 @@ const DataSchema = new mongoose.Schema(
             type: String,
             default: "General"
         },
+        sheetName: {
+            type: String,
+            default: "Sheet1"
+        },
+        parentFile: {
+            type: String,
+            default: null
+        },
         uploadDate: {
             type: Date,
             default: Date.now
+        },
+        excelFileId: {    // Store the GridFS file ID
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        mimeType: {    // Add this field
+            type: String,
+            required: true
         },
         data: [{}] // Array of objects with flexible schema
     }, 

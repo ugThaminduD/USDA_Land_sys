@@ -22,7 +22,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import TableViewIcon from '@mui/icons-material/TableView';
-
+import DownloadIcon from '@mui/icons-material/Download';
 
 
 const ExcelFilesList = () => {
@@ -83,6 +83,61 @@ const ExcelFilesList = () => {
         });
     };
 
+    // Group files by topic and then by parentFile
+    const organizeFiles = () => {
+        const filesByTopic = {};
+        
+        filteredFiles.forEach(file => {
+            const topic = file.topic || 'General';
+            
+            if (!filesByTopic[topic]) {
+                filesByTopic[topic] = {
+                    standalone: [],
+                    byParent: {}
+                };
+            }
+            
+            // Check if it's part of a multi-sheet file
+            if (file.parentFile) {
+                if (!filesByTopic[topic].byParent[file.parentFile]) {
+                    filesByTopic[topic].byParent[file.parentFile] = [];
+                }
+                filesByTopic[topic].byParent[file.parentFile].push(file);
+            } else {
+                filesByTopic[topic].standalone.push(file);
+            }
+        });
+        
+        return filesByTopic;
+    };
+    
+    const organizedFiles = organizeFiles();
+
+    // Add download handler
+    const handleDownload = async (fileId, fileName, event) => {
+        event.stopPropagation(); // Prevent navigation when clicking download
+        try {
+            setLoading(true);
+            const response = await axios.get(`/excel/download/${fileId}`, {
+                responseType: 'blob'
+            });
+
+            // Create blob link to download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Download error:', error);
+            setError('Failed to download file');
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -180,8 +235,8 @@ const ExcelFilesList = () => {
                     </Alert>
                 )}
 
-                {!loading && !error && Object.keys(groupedFiles).map(topic => (
-                    <Box key={topic} sx={{ mb: 3 }}>
+                {!loading && !error && Object.keys(organizedFiles).map(topic => (
+                    <Box key={topic} sx={{ mb: 4 }}>
                         <Typography variant="h6" sx={{ 
                             backgroundColor: '#f5f5f5', 
                             p: 1, 
@@ -190,29 +245,95 @@ const ExcelFilesList = () => {
                         }}>
                             {topic}
                         </Typography>
-                        <Paper elevation={1}>
-                            <List>
-                                {groupedFiles[topic].map((file, index) => (
-                                    <React.Fragment key={file._id}>
-                                        {index > 0 && <Divider />}
-                                        <ListItem disablePadding>
-                                            <ListItemButton onClick={() => navigate(`/excel/file/${file._id}`)}>
-                                                <ListItemText 
-                                                    primary={file.fileName}
-                                                    secondary={`Uploaded: ${formatDate(file.uploadDate)}`}
-                                                />
-                                                <Chip 
-                                                    label="View Data" 
-                                                    color="primary" 
-                                                    size="small" 
-                                                    sx={{ ml: 1 }}
-                                                />
-                                            </ListItemButton>
-                                        </ListItem>
-                                    </React.Fragment>
-                                ))}
-                            </List>
-                        </Paper>
+                        
+                        {/* Standalone files (single sheet) */}
+                        {organizedFiles[topic].standalone.length > 0 && (
+                            <Paper elevation={1} sx={{ mb: 2 }}>
+                                <List>
+                                    {organizedFiles[topic].standalone.map((file, index) => (
+                                        <React.Fragment key={file._id}>
+                                            {index > 0 && <Divider />}
+                                            <ListItem disablePadding>
+                                                <ListItemButton onClick={() => navigate(`/excel/file/${file._id}`)}>
+                                                    <ListItemText 
+                                                        primary={file.fileName}
+                                                        secondary={`Uploaded: ${formatDate(file.uploadDate)}`}
+                                                    />
+                                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                                        <Chip 
+                                                            label="View Data" 
+                                                            color="primary" 
+                                                            size="small" 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate(`/excel/file/${file._id}`);
+                                                            }}
+                                                        />
+                                                        <Chip 
+                                                            icon={<DownloadIcon />}
+                                                            label="Download" 
+                                                            color="secondary" 
+                                                            size="small" 
+                                                            onClick={(e) => handleDownload(file._id, file.fileName, e)}
+                                                        />
+                                                    </Box>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </React.Fragment>
+                                    ))}
+                                </List>
+                            </Paper>
+                        )}
+                        
+                        {/* Multi-sheet files */}
+                        {Object.keys(organizedFiles[topic].byParent).map(parentFile => (
+                            <Box key={parentFile} sx={{ mb: 2 }}>
+                                <Typography variant="subtitle1" sx={{ 
+                                    backgroundColor: '#e3f2fd', 
+                                    p: 0.75, 
+                                    pl: 2,
+                                    borderRadius: '4px 4px 0 0',
+                                    fontWeight: 500
+                                }}>
+                                    {parentFile} <Chip label={`${organizedFiles[topic].byParent[parentFile].length} sheets`} size="small" />
+                                </Typography>
+                                <Paper elevation={1}>
+                                    <List>
+                                        {organizedFiles[topic].byParent[parentFile].map((file, index) => (
+                                            <React.Fragment key={file._id}>
+                                                {index > 0 && <Divider />}
+                                                <ListItem disablePadding>
+                                                    <ListItemButton onClick={() => navigate(`/excel/file/${file._id}`)}>
+                                                        <ListItemText 
+                                                            primary={file.sheetName || `Sheet ${index + 1}`}
+                                                            secondary={`Uploaded: ${formatDate(file.uploadDate)}`}
+                                                        />
+                                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                                            <Chip 
+                                                                label="View Sheet" 
+                                                                color="info" 
+                                                                size="small" 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    navigate(`/excel/file/${file._id}`);
+                                                                }}
+                                                            />
+                                                            <Chip 
+                                                                icon={<DownloadIcon />}
+                                                                label="Download" 
+                                                                color="secondary" 
+                                                                size="small" 
+                                                                onClick={(e) => handleDownload(file._id, file.fileName, e)}
+                                                            />
+                                                        </Box>
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            </React.Fragment>
+                                        ))}
+                                    </List>
+                                </Paper>
+                            </Box>
+                        ))}
                     </Box>
                 ))}
             </Box>
