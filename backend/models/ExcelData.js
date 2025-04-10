@@ -12,7 +12,8 @@ const DataSchema = new mongoose.Schema(
         },
         topic: {
             type: String,
-            default: "General"
+            default: "General",
+            required: true
         },
         sheetName: {
             type: String,

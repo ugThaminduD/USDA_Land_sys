@@ -18,8 +18,8 @@ import {
   TextField,
   InputAdornment,
   Breadcrumbs,
-  Link,
-  Chip
+  Link, Grid,
+  Chip, MenuItem,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -41,6 +41,35 @@ const ExcelDataView = () => {
     const [sheetName, setSheetName] = useState(''); // For multi-sheet files
     const [parentFile, setParentFile] = useState(''); // For multi-sheet files
     const navigate = useNavigate();
+
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedDsDivision, setSelectedDsDivision] = useState('');
+
+    // const districts = [...new Set(excelData.map(item => item.district))].filter(Boolean);
+    // const provinces = [...new Set(excelData.map(item => item.province))].filter(Boolean);
+    // const dsDivisions = [...new Set(excelData.map(item => item.dsDivision))].filter(Boolean);
+
+    // Provinces, Districts, DS Divisions arrays
+    const provinces = [
+        "Central", "Eastern", "North Central",
+        "Northern", "North Western", "Sabaragamuwa",
+        "Southern", "Uva", "Western",
+    ];
+    const districts = [
+        "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle",
+        "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle",
+        "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala",
+        "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam",
+        "Ratnapura", "Trincomalee", "Vavuniya",
+    ];
+    const ds_divisions = [
+        "Colombo", "Sri Jayawarndanapura Kotte", "Dehiwala", "Maharagama", "Kesbewa", "Moratuwa", "Padukka", "Negambo", 
+        "Kelaniya", "Minuwangoda", "Mahara", "Hambantota", "Pitabeddara", "Welipitiya",
+        "Akmeemana", "Baddegama", "Balapitiya", "Ambalangoda", "Kamburupitiya", "Hakmana", "Angunukolapelessa", 
+    ]
+
+
 
 
     useEffect(() => {
@@ -100,8 +129,9 @@ const ExcelDataView = () => {
             
         // Search across all fields
         return Object.values(item).some(value => 
-        value && value.toString().toLowerCase().includes(searchTermLower)
+            value && value.toString().toLowerCase().includes(searchTermLower)
         );
+        
     });
 
     // Format date
@@ -121,13 +151,11 @@ const ExcelDataView = () => {
         <Container maxWidth="xl" sx={{ 
             background: 'linear-gradient(to right bottom, rgb(245, 220, 198), rgb(255, 140, 0))',
             minHeight: '100vh',
-            py: 5,
+            py: 2,
         }}>
 
             <Box sx={{ 
-                mb: 4, 
-                mt: 3, 
-                p: 3,
+                mb: 4, mt: 2, p: 3,
                 backgroundColor: 'white',
                 border: '1px solid rgb(251, 58, 0)',
                 borderRadius: 2,
@@ -158,13 +186,13 @@ const ExcelDataView = () => {
                     <Typography color="text.primary">{fileName}</Typography>
                 </Breadcrumbs>
 
-                <Typography variant="h4" component="h2" gutterBottom>
+                <Typography variant="h4" component="h2" gutterBottom >
                     {fileName}
                 </Typography>
 
                 {/* File metadata when viewing a specific file */}
                 {id && !loading && (
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: 2 }}>
                         <Chip 
                             label={`Topic: ${topic}`} 
                             variant="outlined" 
@@ -197,7 +225,7 @@ const ExcelDataView = () => {
                 )}
 
                 {/* Navigation and Action Buttons */}
-                <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 3, borderBottom: '2px solid black', pb: 1 }}>
                     <Button
                         variant="outlined"
                         startIcon={<ArrowBackIcon />}
@@ -235,22 +263,102 @@ const ExcelDataView = () => {
                     </Button>
                 </Box>
 
-                {/* Search Field */}
-                <TextField
-                    fullWidth
-                    variant="outlined"
-                    placeholder="Search in any field..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    sx={{ mb: 3 }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                {/* Search Box Field */}
+                <Box sx={{ 
+                    mb: 4,  mt: 3, p: 3, // Add padding
+                    // backgroundColor: 'rgba(255, 140, 0, 0.1)', // Light orange background
+                    backgroundColor: 'white',
+                    border: '2px solid rgb(251, 58, 0)', // Orange border
+                    borderRadius: 2, // Rounded corners
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Subtle shadow
+                }}>
+
+                    <Typography variant="h6" gutterBottom sx={{
+                        mb: 2, display: 'flex',
+                        alignItems: 'center',
+                        fontWeight: 'bold'
+                    }}>
+                        <SearchIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                        Search
+                    </Typography>
+
+                    {/* Provinces, Districts, Ds Divisions search dropdown */}
+                    <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                        <TextField
+                            select
+                            label="Province"
+                            name='Provinces'
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            // sx={{ minWidth: 350 }}
+                        >
+                            <MenuItem value="">All Provinces</MenuItem>
+                            {provinces.map((province) => (
+                                <MenuItem key={province} value={province}>
+                                    {province}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                        <TextField
+                            select 
+                            label="District"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            // sx={{ minWidth: 350 }}
+                        >
+                            <MenuItem value="">All Districts</MenuItem>
+                            {districts.map((district) => (
+                                <MenuItem key={district} value={district}>
+                                    {district}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                        <TextField
+                            select 
+                            label="DS Division"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            // sx={{ minWidth: 350 }}
+                        >
+                            <MenuItem value="">All Districts</MenuItem>
+                            {ds_divisions.map((ds_division) => (
+                                <MenuItem key={ds_division} value={ds_division}>
+                                    {ds_division}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Box>
+
+                    {/* search input bar */}
+                    <TextField
+                        fullWidth
+                        variant="outlined"
+                        placeholder="Search in any field..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        size="small"
+                        // sx={{ mb: 3 }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+
+                </Box>
 
                 {/* Loading, Error states */}
                 {loading && (
@@ -267,8 +375,9 @@ const ExcelDataView = () => {
 
                 {/* Data Table */}
                 {!loading && !error && headers.length > 0 && (
-                <TableContainer component={Paper} elevation={3} sx={{ maxHeight: 'calc(100vh - 300px)', overflow: 'auto' }}>
+                <TableContainer component={Paper} elevation={3} sx={{ maxHeight: 'calc(150vh - 300px)', overflow: 'auto' }}>
                     <Table stickyHeader aria-label="excel data table">
+
                         <TableHead>
                             <TableRow sx={{ backgroundColor: 'primary.main' }}>
                                 {headers.map((header, index) => (
@@ -288,6 +397,7 @@ const ExcelDataView = () => {
                                 ))}
                             </TableRow>
                         </TableHead>
+
                         <TableBody>
                             {filteredData.length > 0 ? (
                                 filteredData.map((row, rowIndex) => (
@@ -307,6 +417,7 @@ const ExcelDataView = () => {
                                 </TableRow>
                             )}
                         </TableBody>
+
                     </Table>
                 </TableContainer>
                 )}
