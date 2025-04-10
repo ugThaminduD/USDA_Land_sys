@@ -48,6 +48,13 @@ const FileUpload = () => {
       return;
     }
 
+    // Check if the topic is empty
+    if (!topic.trim()) { 
+      setError("Please enter a topic/category");
+      setOpenSnackbar(true);
+      return;
+    }
+
     // Add file size check on frontend
     if (selectedFile.size > 100 * 1024 * 1024) { // 100MB in bytes
       setError("File size too large. Maximum size allowed is 100MB");
@@ -96,9 +103,15 @@ const FileUpload = () => {
 
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+    <Container maxWidth="auto" sx={{ 
+      background: 'linear-gradient(to right bottom, rgb(245, 220, 198), rgb(255, 140, 0))',
+      minHeight: '100vh',
+      py: 2,
+    }}>
 
+      <Paper elevation={3} sx={{ p: 4, mt: 4 }} >
+
+        {/* Back Home Button */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Button
             variant="outlined"
@@ -124,13 +137,14 @@ const FileUpload = () => {
         </Typography>
         
 
+        {/* Upload area */}
         <Box 
           sx={{ 
             border: '2px dashed #ccc', 
             borderRadius: 2, 
-            p: 3, 
+            p: 3, mb: 3,
             textAlign: 'center',
-            mb: 3,
+            minHeight: 200,
             backgroundColor: '#f8f9fa',
             cursor: 'pointer',
             '&:hover': {
@@ -151,8 +165,9 @@ const FileUpload = () => {
                 Drag & Drop or Click to Upload Excel File
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                Supports .xlsx and .xls formats
+                Supports .xlsx and .xls formats || Maximum size allowed is 100MB
               </Typography>
+              
               {selectedFile && (
                 <Typography variant="body1" sx={{ mt: 2, fontWeight: 'medium' }}>
                   Selected: {selectedFile.name}
@@ -169,10 +184,11 @@ const FileUpload = () => {
           />
         </Box>
 
+
         {/* Add topic input field */}
         <TextField
           fullWidth
-          label="Topic/Category (optional)"
+          label="Topic/Category"
           variant="outlined"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
@@ -181,6 +197,7 @@ const FileUpload = () => {
           sx={{ mb: 3 }}
         />
         
+        {/* Upload Button */}
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <Button 
             variant="contained" 
@@ -201,6 +218,7 @@ const FileUpload = () => {
         </Snackbar>
         
       </Paper>
+
     </Container>
   );
 };

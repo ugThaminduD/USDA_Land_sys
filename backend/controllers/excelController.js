@@ -5,6 +5,7 @@ const { Readable } = require('stream');
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
 
+// handles the upload of Excel files
 const uploadExcel = async (req, res) => {
   try {
     // Check file size
@@ -313,7 +314,7 @@ const getData = async (req, res) => {
 // Download Excel file
 const downloadExcel = async (req, res) => {
   try {
-    const fileId = req.params.id;
+    const fileId = req.params.id;   // The ID of the file to download
     const fileData = await DataModel.findById(fileId);
     
     if (!fileData) {

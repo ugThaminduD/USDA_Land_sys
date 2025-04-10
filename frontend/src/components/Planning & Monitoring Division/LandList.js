@@ -136,7 +136,7 @@ const LandList = () => {
                 p: 3, // Add padding
                 // backgroundColor: 'rgba(255, 140, 0, 0.1)', // Light orange background
                 backgroundColor: 'white',
-                border: '1px solid rgb(251, 58, 0)', // Orange border
+                border: '2px solid rgb(251, 58, 0)', // Orange border
                 borderRadius: 2, // Rounded corners
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Subtle shadow
             }}>
@@ -148,7 +148,7 @@ const LandList = () => {
                     fontWeight: 'bold'
                 }}>
                     <SearchIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                    Search Lands
+                    Search
                 </Typography>
 
                 {/* Search Input Fields */}

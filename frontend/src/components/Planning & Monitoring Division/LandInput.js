@@ -561,7 +561,9 @@ const LandInput = () => {
               textDecoration: 'underline',
               mb: 3
             }}
-          > Land Registration Form </Typography>
+          > 
+            Land Registration Form 
+          </Typography>
 
           {/* Full Land Registration Submission Form */}
           <Box component="form" 
