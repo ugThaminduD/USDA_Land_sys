@@ -1,6 +1,34 @@
-# Getting Started with Create React App
+# USDA Land System - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+
+This is the frontend application for the USDA Land System project. It provides a user-friendly interface for uploading, managing, and viewing Excel files and their associated data. The frontend is built using React and integrates with the backend APIs to handle data processing and storage.
+
+## Features
+
+1. **Excel File Upload**:
+   - Allows users to upload Excel files through a simple interface.
+   - Supports file validation and displays success or error messages.
+
+2. **View Uploaded Files**:
+   - Displays a list of all uploaded Excel files with metadata such as file name, topic, and upload date.
+   - Provides options to view detailed data for each file.
+
+3. **Data Visualization**:
+   - Displays processed Excel data in a tabular format for easy viewing.
+   - Supports navigation between different sheets of the uploaded Excel files.
+
+4. **Land Management**:
+   - Allows users to input, edit, and view land-related data.
+   - Provides a list of land records and detailed views for each record.
+
+5. **Routing**:
+   - Implements routing for seamless navigation between different pages, such as file upload, data view, and land management.
+
+## Folder Structure
+
+
+
 
 ## Available Scripts
 
@@ -8,7 +36,7 @@ In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.\
+Runs the app in development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 The page will reload when you make changes.\
@@ -24,10 +52,8 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
+The build is minified, and the filenames include the hashes.\
 Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ### `npm run eject`
 
@@ -35,9 +61,48 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Routing
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The application uses React Router for navigation. Below are the main routes:
+
+- `/`: Displays the list of land records.
+- `/input`: Allows users to add new land data.
+- `/edit/land/:id`: Allows users to edit existing land data.
+- `/land/:id`: Displays detailed information about a specific land record.
+- `/upload/excelDocument`: Provides an interface for uploading Excel files.
+- `/excel/data/view`: Displays processed Excel data.
+- `/excel/files`: Lists all uploaded Excel files.
+- `/excel/file/:id`: Displays detailed data for a specific Excel file.
+
+## Dependencies
+
+- **React**: For building the user interface.
+- **React Router**: For handling routing.
+- **Material-UI**: For consistent and responsive UI components.
+- **Bootstrap**: For additional styling and layout options.
+
+## Future Development
+
+1. **Enhanced Data Visualization**:
+   - Add charts and graphs to visualize Excel data more effectively.
+
+2. **Pagination and Filtering**:
+   - Implement pagination and filtering for large datasets.
+
+3. **File Management**:
+   - Add options to delete or update uploaded files.
+
+4. **Authentication**:
+   - Integrate user authentication for secure access to the application.
+
+5. **Performance Optimization**:
+   - Optimize rendering of large datasets to improve performance.
+
+6. **Mobile Responsiveness**:
+   - Ensure the application is fully responsive and works seamlessly on mobile devices.
+
+7. **Integration with Backend Enhancements**:
+   - Support new features from the backend, such as file versioning and data export.
 
 ## Learn More
 
@@ -45,26 +110,6 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License.
