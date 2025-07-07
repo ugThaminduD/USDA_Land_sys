@@ -50,8 +50,8 @@ app.listen(PORT, () => {
 // }
 
 // Routes
-// const UserRoutes = require("./routes/userRoutes");
-// app.use(UserRoutes);
+const UserRoutes = require("./routes/userRoutes");
+app.use("/api/users", UserRoutes);
 
 const LandRoutes = require("./routes/landRoutes");
 app.use(LandRoutes);
