@@ -37,7 +37,7 @@ const loginUser = async (req, res) => {
 };
 
 // Create a new user (admin only)
-const createUser = async (req, res) => {
+const createUser = async (req, res) => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
   try {
     if (!req.user || req.user.role !== "admin") {
       return res.status(403).json({ message: "Access denied. Admins only." });

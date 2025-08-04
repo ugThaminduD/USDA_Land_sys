@@ -5,16 +5,18 @@ import {
   Typography,
   Grid,
   Card,
+  Button,
+  Chip,
 } from "@mui/material";
+import { logout, getCurrentUser, isAdmin } from "../../utils/auth";
 import logo from "../../img/LogoUSDA.png";
 import backgroundImage from '../../img/WelcomeBG.jpg';
 
 
 
 const planningSections = [
-    // { name: "Land Management", route: "/LandList" },
-    { name: "Land Development", route: "/input" },
-    { name: "Social Development", route: "/input2" },
+    { name: "Data Collection Form", route: "/data/input" },
+    { name: "Data Visualization", route: "/data/list" },
 
     // { name: "Excel Data Management", route: "/excel/files" },
     // { name: "Excel File Uploader", route: "/upload/excelDocument" },
@@ -25,6 +27,15 @@ const planningSections = [
 
 const PlanningWelcomePage = () => {
     const navigate = useNavigate();
+    const currentUser = getCurrentUser();
+
+    const handleLogin = () => {
+        navigate('/login'); // Navigate to login page
+    };
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
 
     return (
         <Box
@@ -60,8 +71,62 @@ const PlanningWelcomePage = () => {
                 >
                     WELCOME TO <span style={{ color: "orangered" }}>PLANNING & MONITORING</span> DIVISION
                 </Typography>
-                <Box />
+
+                {/* User Info and Login/Logout */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {currentUser ? (
+                        // Show user info and logout when logged in
+                        <>
+                            <Box sx={{ textAlign: 'right' }}>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    Welcome, {currentUser?.full_name || currentUser?.un}
+                                </Typography>
+                                <Chip 
+                                    label={currentUser?.role?.toUpperCase()} 
+                                    color={isAdmin() ? "error" : "primary"} 
+                                    size="small" 
+                                />
+                            </Box>
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={handleLogout}
+                                size="small"
+                            >
+                                Logout
+                            </Button>
+                            {isAdmin() && (
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={() => navigate('/admin')}
+                                    size="small"
+                                >
+                                    Admin Panel
+                                </Button>
+                            )}
+                        </>
+                    ) : (
+                        // Show login button when not logged in
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleLogin}
+                            size="small"
+                            sx={{
+                                backgroundColor: "rgb(251, 58, 0)",
+                                "&:hover": {
+                                    backgroundColor: "rgb(220, 50, 0)",
+                                }
+                            }}
+                        >
+                            Login
+                        </Button>
+                    )}
+                </Box>
             </Box>
+
+            
 
             <Box sx={{ px: 3, mt: 6 }}>
                 <Box

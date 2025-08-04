@@ -12,7 +12,7 @@ const Login = () => {
         const response = await login(un, pwd);
         if (response.success) {
             // Redirect based on user role
-            window.location.href = response.user.role === "admin" ? "/admin" : "/land/input";
+            window.location.href = response.user.role === "admin" ? "/" : "/";
         } else {
             setError("Invalid username or password");
         }

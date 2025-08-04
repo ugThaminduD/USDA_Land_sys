@@ -6,7 +6,7 @@ const MONGO_DB_URL = "mongodb+srv://thamindud009:1234@cluster0.sp5xx.mongodb.net
 
 async function addAdmin() {
     await mongoose.connect(MONGO_DB_URL);
-    const hashedPwd = await bcrypt.hash("admin@1234", 10);
+    const hashedPwd = await bcrypt.hash("1234", 10);
     await UserModel.create({ un: "admin_un", pwd: hashedPwd, role: "admin" });
     console.log("Admin user created");
     process.exit();

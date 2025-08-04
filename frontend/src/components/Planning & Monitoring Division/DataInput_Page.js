@@ -10,12 +10,12 @@ import {
   Stack,
   Alert,
   Snackbar,
-  IconButton,
+  IconButton, 
 } from "@mui/material";
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { CloudUpload } from "@mui/icons-material";
+import { CloudUpload, KeyboardOptionKeySharp } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilePresentIcon from "@mui/icons-material/FilePresent";
@@ -28,15 +28,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import axios from "axios";
 
 const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
+  clip: "rect(0 0 0 0)", clipPath: "inset(50%)", height: 1,
+  overflow: "hidden", position: "absolute",
+  bottom: 0, left: 0, whiteSpace: "nowrap", width: 1,
 });
 const HEADER_BG = "#8B0000";
 const HEADER_TEXT = "#fff";
@@ -52,7 +46,16 @@ const LandInput = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [documentPreviews, setDocumentPreviews] = useState([]);
+  // Add separate state for social images/documents
+  const [selectedSocialImages, setSelectedSocialImages] = useState([]);
+  const [socialImagePreviews, setSocialImagePreviews] = useState([]);
+  const [selectedSocialDocuments, setSelectedSocialDocuments] = useState([]);
+  const [socialDocumentPreviews, setSocialDocumentPreviews] = useState([]);
+
   const navigate = useNavigate();
+  const handleBackToHome = () => {
+    navigate("/");
+  };
   const [toast, setToast] = useState({
     open: false,
     message: "",
@@ -61,38 +64,79 @@ const LandInput = () => {
   const [errors, setErrors] = useState({
     email: "",
     phone_number: "",
+    local_employee_email: "", // Add this
   });
   const [formSections, setFormSections] = useState({
     land: false,
     social: false,
   });
   const [formData, setFormData] = useState({
+    // Common fields
     Provinces: "",
     Districts: "",
     Divisional_secretariats: "",
-    Grama_Niladhari_divisions: "",
+    
+      //// Land Details fields
+      Land_address: "",
+      Land_location: "",
+      Land_Area_of_Land: "",
+      Land_Area_of_Land_Unit: "Hectares",
+      Land_description: "",
+      Land_images: [],
+      Land_documents: [],
+      Land_current_use: "",
 
-    Land_address: "",
-    Land_location: "",
-    Area_of_Land: "",
-    Area_of_Land_Unit: "", // Default unit
-    Land_description: "",
-    Land_current_use: "",
-    Land_images: [],
-    Land_documents: [],
+      // Local Employee Details (Land)
+      local_employee_name: "",
+      Land_Grama_Niladhari_Division: "",
+      local_employee_phone_number: "",
+      local_employee_email: "",
+      Day_of_Entry: "",
+      
+      // Ownership Details (Land)
+      Land_ownership: "",
+      Land_owner_name: "",
+      Land_owner_address: "",
+      email: "",
+      phone_number: "",
+      ////
 
-    local_employee_name: "",
-    local_employee_phone_number: "",
-    local_employee_email: "",
-
-    USDA_Entry_employee_name: "",
-    Day_of_Entry: "",
-
-    Land_ownership: "",
-    Land_owner_name: "",
-    Land_owner_address: "",
-    email: "",
-    phone_number: "",
+      //// Social Details fields
+      Social_Grama_Niladhari_Division: "",
+      Total_Population: "",
+      Total_Families: "",
+      Total_Male_Population: "",
+      Total_Female_Population: "",
+      
+      // Housing Details
+      Shanty_Housing_Units: "",
+      Families_in_Shanties: "",
+      Slum_Housing_Units: "",
+      Families_in_Slums: "",
+      Line_Room_Housing_Units: "",
+      Families_in_Line_Rooms: "",
+      Scattered_Housing_Units: "",
+      Families_in_Scattered_Housing: "",
+      Vulnerable_Housing_Units: "",
+      Families_in_Vulnerable_Housing: "",
+      Other_Housing_Units: "",
+      Families_in_Other_Housing: "",
+      
+      // Social Land Details
+      Social_Area_of_Land: "",
+      Social_Area_of_Land_Unit: "Hectares",
+      Land_Extent: "",
+      Land_Lot_Details: "",
+      
+      // Vulnerability and Livability
+      Vulnerability_Index: "",
+      Livability_Condition: "",
+      Additional_Notes: "",
+      
+      // Social Images and Documents
+      Social_images: [],
+      Social_documents: []
+      ////
   });
 
   // Add useEffect to fetch land data if id exists
@@ -154,6 +198,14 @@ const LandInput = () => {
         }));
       }
     }
+    if (name === "local_employee_email" && value) { // Add this
+      if (!validateEmail(value)) {
+        setErrors((prev) => ({
+          ...prev,
+          local_employee_email: "Please enter a valid email address",
+        }));
+      }
+    }
     if (name === "phone_number" && value) {
       if (!validatePhone(value)) {
         setErrors((prev) => ({
@@ -185,19 +237,31 @@ const LandInput = () => {
     const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
+  const handleSocialImageChange = (event) => {
+    const files = Array.from(event.target.files);
 
-  // Handle remove existing image
-  const handleRemoveExistingImage = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      Land_images: prev.Land_images.filter((_, i) => i !== index),
-    }));
+    if (selectedSocialImages.length + files.length > 5) {
+      setToast({
+        open: true,
+        message: "Maximum 5 images allowed",
+        severity: "error",
+      });
+      return;
+    }
 
-    setToast({
-      open: true,
-      message: "Image removed. Save changes to update.",
-      severity: "info",
-    });
+    const validFiles = files.filter((file) => validateImage(file));
+    setSelectedSocialImages((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
+    setSocialImagePreviews((prev) => [...prev, ...newPreviews]);
+  };
+  // Remove existing image
+  const handleRemoveImage = (index) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+  const handleRemoveSocialImage = (index) => {
+    setSelectedSocialImages(prev => prev.filter((_, i) => i !== index));
+    setSocialImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   // Handle document change
@@ -225,38 +289,98 @@ const LandInput = () => {
     }));
     setDocumentPreviews((prev) => [...prev, ...newPreviews]);
   };
+  const handleSocialDocumentChange = (event) => {
+    const files = Array.from(event.target.files);
 
-  // Handle remove existing document
-  const handleRemoveExistingDocument = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      Land_documents: prev.Land_documents.filter((_, i) => i !== index),
+    if (selectedSocialDocuments.length + files.length > 5) {
+      setToast({
+        open: true,
+        message: "Maximum 5 documents allowed",
+        severity: "error",
+      });
+      return;
+    }
+
+    const validFiles = files.filter((file) => validateDocument(file));
+    setSelectedSocialDocuments((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map((file) => ({
+      name: file.name,
+      type: file.type,
+      size: (file.size / 1024).toFixed(1) + " KB",
     }));
-
-    setToast({
-      open: true,
-      message: "Document removed. Save changes to update.",
-      severity: "info",
-    });
+    setSocialDocumentPreviews((prev) => [...prev, ...newPreviews]);
+  };
+  // Remove existing document
+  const handleRemoveDocument = (index) => {
+    setSelectedDocuments(prev => prev.filter((_, i) => i !== index));
+    setDocumentPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+  const handleRemoveSocialDocument = (index) => {
+    setSelectedSocialDocuments(prev => prev.filter((_, i) => i !== index));
+    setSocialDocumentPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Handle Full Land Registration Submission Form
+  // Update handleSubmit to handle both Land and Social uploads
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate before submission
+    
+    // Check if at least one section is selected
+    if (!formSections.land && !formSections.social) {
+      setToast({
+        open: true,
+        message: "Please select at least one section (Land or Social) to submit",
+        severity: "error",
+      });
+      return;
+    }
+    
+    // Enhanced validation
     const validationErrors = {};
+
+    // Only validate Land fields if Land section is selected
+    if (formSections.land) {
+      if (!formData.Land_Area_of_Land) {
+        validationErrors.Land_Area_of_Land = "Land area is required";
+      }
+      if (!formData.Land_ownership) {
+        validationErrors.Land_ownership = "Land ownership is required";
+      }
+      if (!formData.Land_owner_name) {
+        validationErrors.Land_owner_name = "Land owner name is required";
+      }
+      if (!formData.Day_of_Entry) {
+        validationErrors.Day_of_Entry = "Day of entry is required";
+      }
+    }    
+    
+    // Only validate Social fields if Social section is selected
+    if (formSections.social) {
+      if (!formData.Social_Area_of_Land) {
+        validationErrors.Social_Area_of_Land = "Social area of land is required";
+      }
+    }
+
+    // Common field validations
+    if (!formData.Provinces) {
+      validationErrors.Provinces = "Province is required";
+    }
+    if (!formData.Districts) {
+      validationErrors.Districts = "District is required";
+    }
+    if (!formData.Divisional_secretariats) {
+      validationErrors.Divisional_secretariats = "Divisional secretariat is required";
+    }
 
     if (formData.email && !validateEmail(formData.email)) {
       validationErrors.email = "Please enter a valid email address";
     }
-
+    if (formData.local_employee_email && !validateEmail(formData.local_employee_email)) {
+      validationErrors.local_employee_email = "Please enter a valid email address";
+    }
     if (formData.phone_number && !validatePhone(formData.phone_number)) {
-      validationErrors.phone_number =
-        "Please enter a valid 10-digit phone number";
+      validationErrors.phone_number = "Please enter a valid 10-digit phone number";
     }
 
-    // If there are validation errors, show them and stop submission
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setToast({
@@ -270,10 +394,12 @@ const LandInput = () => {
     setIsLoading(true);
 
     try {
-      let imageUrls = formData.Land_images || []; // Keep existing images
-      let documentUrls = formData.Land_documents || []; // Keep existing documents
+      let landImageUrls = formData.Land_images || [];
+      let landDocumentUrls = formData.Land_documents || [];
+      let socialImageUrls = formData.Social_images || [];
+      let socialDocumentUrls = formData.Social_documents || [];
 
-      // Upload new images if any are selected
+      // Upload Land images
       if (selectedImages.length > 0) {
         const imageFormData = new FormData();
         selectedImages.forEach((image) => {
@@ -281,42 +407,43 @@ const LandInput = () => {
         });
 
         try {
-          const uploadResponse = await axios.post(
-            "/upload/images",
-            imageFormData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-              onUploadProgress: (progressEvent) => {
-                // Optional: Add upload progress handling
-                const progress = Math.round(
-                  (progressEvent.loaded * 100) / progressEvent.total
-                );
-                console.log(`Image Upload Progress: ${progress}%`);
-              },
-            }
-          );
-
-          if (!uploadResponse.data.imageUrls) {
-            throw new Error("No image URLs returned from server");
-          }
-
-          imageUrls = [...imageUrls, ...uploadResponse.data.imageUrls];
+          const uploadResponse = await axios.post("/upload/images", imageFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          landImageUrls = [...landImageUrls, ...uploadResponse.data.imageUrls];
         } catch (error) {
-          console.error("Error uploading images:", error);
           setToast({
             open: true,
-            message: `Failed to upload images: ${
-              error.response?.data?.error || error.message
-            }`,
+            message: `Failed to upload land images: ${error.response?.data?.error || error.message}`,
             severity: "error",
           });
           return;
         }
       }
 
-      // Upload new documents if any are selected
+      // Upload Social images
+      if (selectedSocialImages.length > 0) {
+        const imageFormData = new FormData();
+        selectedSocialImages.forEach((image) => {
+          imageFormData.append("images", image);
+        });
+
+        try {
+          const uploadResponse = await axios.post("/upload/images", imageFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          socialImageUrls = [...socialImageUrls, ...uploadResponse.data.imageUrls];
+        } catch (error) {
+          setToast({
+            open: true,
+            message: `Failed to upload social images: ${error.response?.data?.error || error.message}`,
+            severity: "error",
+          });
+          return;
+        }
+      }
+
+      // Upload Land documents
       if (selectedDocuments.length > 0) {
         const docFormData = new FormData();
         selectedDocuments.forEach((doc) => {
@@ -324,49 +451,61 @@ const LandInput = () => {
         });
 
         try {
-          const uploadResponse = await axios.post(
-            "/upload/documents",
-            docFormData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-              onUploadProgress: (progressEvent) => {
-                const progress = Math.round(
-                  (progressEvent.loaded * 100) / progressEvent.total
-                );
-                console.log(`Document Upload Progress: ${progress}%`);
-              },
-            }
-          );
-
-          if (!uploadResponse.data.documentUrls) {
-            throw new Error("No document URLs returned from server");
-          }
-
-          documentUrls = [...documentUrls, ...uploadResponse.data.documentUrls];
+          const uploadResponse = await axios.post("/upload/documents", docFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          landDocumentUrls = [...landDocumentUrls, ...uploadResponse.data.documentUrls];
         } catch (error) {
-          console.error("Error uploading documents:", error);
           setToast({
             open: true,
-            message: `Failed to upload documents: ${
-              error.response?.data?.error || error.message
-            }`,
+            message: `Failed to upload land documents: ${error.response?.data?.error || error.message}`,
             severity: "error",
           });
           return;
         }
       }
 
-      // Format the date properly
+      // Upload Social documents
+      if (selectedSocialDocuments.length > 0) {
+        const docFormData = new FormData();
+        selectedSocialDocuments.forEach((doc) => {
+          docFormData.append("documents", doc);
+        });
+
+        try {
+          const uploadResponse = await axios.post("/upload/documents", docFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          socialDocumentUrls = [...socialDocumentUrls, ...uploadResponse.data.documentUrls];
+        } catch (error) {
+          setToast({
+            open: true,
+            message: `Failed to upload social documents: ${error.response?.data?.error || error.message}`,
+            severity: "error",
+          });
+          return;
+        }
+      }
+
+      // Format the final data
       const formattedData = {
         ...formData,
-        Day_of_Entry: new Date(formData.Day_of_Entry).toISOString(),
-        Land_images: imageUrls,
-        Land_documents: documentUrls,
+        Day_of_Entry: formData.Day_of_Entry ? new Date(formData.Day_of_Entry).toISOString() : "",
+        Land_images: landImageUrls,
+        Land_documents: landDocumentUrls,
+        Social_images: socialImageUrls,
+        Social_documents: socialDocumentUrls,
+        formSections: formSections,
       };
 
-      // Choose API endpoint based on whether we're updating or creating
+      // Debugging logs
+      console.log("Data being sent to backend:", formattedData);
+      console.log("Land images:", landImageUrls);
+      console.log("Social images:", socialImageUrls);
+      console.log("Land documents:", landDocumentUrls);
+      console.log("Social documents:", socialDocumentUrls);
+
+      // Submit the form => API calls
       const apiCall = id
         ? axios.put(`/update/land/${id}`, formattedData)
         : axios.post("/add", formattedData);
@@ -374,81 +513,124 @@ const LandInput = () => {
       const response = await apiCall;
 
       if (response.status >= 200 && response.status < 300) {
-        // alert("Land details have been successfully saved!");
         setToast({
           open: true,
-          message: id
-            ? "Land details have been successfully updated!"
-            : "Land details have been successfully saved!",
+          message: id ? "Details updated successfully!" : "Details saved successfully!",
           severity: "success",
         });
 
-        // Add navigation after successful submission
-        // Wait 1.5 seconds to show the success message before navigating
         setTimeout(() => {
           if (id) {
-            navigate("/"); // For updates, go to list page
+            navigate("/");
           } else {
+            // Reset all form states
             setFormData({
+              // Common fields
               Provinces: "",
               Districts: "",
               Divisional_secretariats: "",
-              Grama_Niladhari_divisions: "",
+              
+              // Land Details fields
               Land_address: "",
               Land_location: "",
-              Area_of_Land: "",
-              Area_of_Land_Unit: "", // Reset to default unit
+              Land_Area_of_Land: "",
+              Land_Area_of_Land_Unit: "Hectares",
               Land_description: "",
-              Land_current_use: "",
               Land_images: [],
               Land_documents: [],
+              Land_current_use: "",
+
+              // Local Employee Details (Land)
               local_employee_name: "",
+              Land_Grama_Niladhari_Division: "",
               local_employee_phone_number: "",
               local_employee_email: "",
-              USDA_Entry_employee_name: "",
               Day_of_Entry: "",
+              
+              // Ownership Details (Land)
               Land_ownership: "",
               Land_owner_name: "",
               Land_owner_address: "",
               email: "",
               phone_number: "",
+
+              // Social Details fields
+              Social_Grama_Niladhari_Division: "",
+              Total_Population: "",
+              Total_Families: "",
+              Total_Male_Population: "",
+              Total_Female_Population: "",
+              
+              // Housing Details
+              Shanty_Housing_Units: "",
+              Families_in_Shanties: "",
+              Slum_Housing_Units: "",
+              Families_in_Slums: "",
+              Line_Room_Housing_Units: "",
+              Families_in_Line_Rooms: "",
+              Scattered_Housing_Units: "",
+              Families_in_Scattered_Housing: "",
+              Vulnerable_Housing_Units: "",
+              Families_in_Vulnerable_Housing: "",
+              Other_Housing_Units: "",
+              Families_in_Other_Housing: "",
+              
+              // Social Land Details
+              Social_Area_of_Land: "",
+              Social_Area_of_Land_Unit: "Hectares",
+              Land_Extent: "",
+              Land_Lot_Details: "",
+              
+              // Vulnerability and Livability
+              Vulnerability_Index: "",
+              Livability_Condition: "",
+              Additional_Notes: "",
+              
+              // Social Images and Documents
+              Social_images: [],
+              Social_documents: []
             });
-            // Also reset the preview states
+            // Reset section selections
+            setFormSections({
+              land: false,
+              social: false,
+            });
+            // Reset image and document states
             setSelectedImages([]);
             setImagePreviews([]);
             setSelectedDocuments([]);
             setDocumentPreviews([]);
-            // navigate('/'); // For new entries, go to list page
+            setSelectedSocialImages([]);
+            setSocialImagePreviews([]);
+            setSelectedSocialDocuments([]);
+            setSocialDocumentPreviews([]);
           }
         }, 1500);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      // alert("Failed to save land details. Please try again.");
       setToast({
         open: true,
-        message: id
-          ? "Failed to update land details. Please try again."
-          : "Failed to save land details. Please try again.",
+        message: "Failed to save details. Please try again.",
         severity: "error",
-      });
+         
+      });console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  
   // Validation email, phone functions
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
-
   const validatePhone = (phone) => {
     const regex = /^[0-9]{10}$/;
     return regex.test(phone);
   };
 
-  // Validate image
+  // Validate image, document functions
   const validateImage = (file) => {
     // Size validation (5MB)
     if (file.size > 20 * 1024 * 1024) {
@@ -472,8 +654,6 @@ const LandInput = () => {
 
     return true;
   };
-
-  // Validate document
   const validateDocument = (file) => {
     // Size validation (10MB)
     if (file.size > 100 * 1024 * 1024) {
@@ -570,13 +750,29 @@ const LandInput = () => {
           color: HEADER_TEXT,
           py: 2, px: 3, 
           display: "flex",
-          alignItems: "center", justifyContent: "center",
+          alignItems: "center", justifyContent: "space-between",
           borderBottom: "4px solid #b71c1c",
         }}
       >
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBackToHome}
+          sx={{
+            color: HEADER_TEXT,
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+            },
+            borderRadius: 2, px: 2, py: 1,
+            fontWeight: 600, 
+          }}
+        >
+          Home
+        </Button>
         <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: 1 }}>
           USDA Data Collection System
         </Typography>
+        <Box sx={{ width: "120px" }} />
       </Box>
 
       {/* Common field Form */} 
@@ -725,6 +921,7 @@ const LandInput = () => {
         
       </Container>
 
+
       {/* Conditionally render Land Details form */}
       {formSections.land && (
         <Container
@@ -788,14 +985,14 @@ const LandInput = () => {
                           Area of Land
                         </>
                       }
-                      name="Area_of_Land"
+                      name="Land_Area_of_Land"
                       onChange={handleChange}
-                      value={formData.Area_of_Land}
+                      value={formData.Land_Area_of_Land}
                       InputLabelProps={{ style: { fontSize: 16 } }}
                       type="number" inputProps={{ min: 0 }}
                       InputProps={{
                         endAdornment: (
-                          <InputAdornment position="end">{formData.Area_of_Land_Unit}</InputAdornment>
+                          <InputAdornment position="end">{formData.Land_Area_of_Land_Unit}</InputAdornment>
                         ),
                       }}
                     />
@@ -803,9 +1000,9 @@ const LandInput = () => {
                   <Grid item xs={5}>
                     <TextField
                       select fullWidth required size="small" label="Unit"
-                      name="Area_of_Land_Unit"
+                      name="Land_Area_of_Land_Unit"
                       onChange={handleChange}
-                      value={formData.Area_of_Land_Unit}
+                      value={formData.Land_Area_of_Land_Unit}
                       InputLabelProps={{ style: { fontSize: 16 } }}
                     >
                       <MenuItem value="Hectares">Hectares</MenuItem>
@@ -833,7 +1030,7 @@ const LandInput = () => {
                     border: '2px dashed rgba(255, 94, 0, 0.5)', // Changed to match your theme
                     p: 3, borderRadius: 2, textAlign: 'center',
                     bgcolor: 'rgba(255, 240, 230, 0.2)', // Light background
-                    minHeight: '200px', // Set minimum height
+                    // minHeight: '200px', // Set minimum height
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -886,7 +1083,7 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveExistingImage(index)}
+                              onClick={() => handleRemoveImage(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -924,7 +1121,7 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveExistingImage(index)}
+                              onClick={() => handleRemoveImage(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -942,7 +1139,7 @@ const LandInput = () => {
                     borderRadius: 2,
                     textAlign: 'center',
                     bgcolor: 'rgba(230, 240, 255, 0.2)', // Light blue background
-                    minHeight: '200px',
+                    // minHeight: '200px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -993,7 +1190,7 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveExistingDocument(index)}
+                              onClick={() => handleRemoveDocument(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -1082,7 +1279,7 @@ const LandInput = () => {
                                 size: 'small',
                                 flexShrink: 0
                               }}
-                              onClick={() => handleRemoveExistingDocument(index)}
+                              onClick={() => handleRemoveDocument(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -1123,7 +1320,7 @@ const LandInput = () => {
                     borderRadius: 1, px: 3, mb: 1
                   }}
                 >
-                  Local Employee Details
+                  Local Employee Details (Grama Niladhari)
                 </Typography>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -1133,6 +1330,19 @@ const LandInput = () => {
                   name="local_employee_name"
                   onChange={handleChange}
                   value={formData.local_employee_name}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              {/* Grama Niladhari Division Details */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Grama Niladhari Division (Name and Number)"
+                  name="Land_Grama_Niladhari_Division"
+                  onChange={handleChange}
+                  value={formData.Land_Grama_Niladhari_Division || ""}
+                  placeholder="e.g., Nugegoda 519"
                   InputLabelProps={{ style: { fontSize: 16 } }}
                 />
               </Grid>
@@ -1160,34 +1370,6 @@ const LandInput = () => {
                   InputLabelProps={{ style: { fontSize: 16 } }}
                 />
               </Grid>
-
-              {/* USDA Details */}
-              {/* <Grid item xs={12} sx={{ mt: 2 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 600, fontSize: 18, background: SECTION_HEADER_BG,
-                    color: SECTION_HEADER_TEXT,
-                    borderRadius: 1, px: 3, mb: 1
-                  }}
-                >
-                  USDA Details
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth required size="small"
-                  label={
-                    <>
-                      <span style={{ color: REQUIRED_COLOR }}>*</span> USDA Entry
-                      Employee Name
-                    </>
-                  }
-                  name="USDA_Entry_employee_name"
-                  onChange={handleChange}
-                  value={formData.USDA_Entry_employee_name}
-                  InputLabelProps={{ style: { fontSize: 16 } }}
-                />
-              </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth required type="date" size="small"
@@ -1202,7 +1384,9 @@ const LandInput = () => {
                   value={formData.Day_of_Entry}
                   InputLabelProps={{ shrink: true, style: { fontSize: 16 } }}
                 />
-              </Grid> */}
+              </Grid>
+
+
 
               {/* Ownership Details */}
               <Grid item xs={12} sx={{ mt: 2 }}>
@@ -1291,11 +1475,7 @@ const LandInput = () => {
           </Box>
         </Container>
       )}
-
-
-
-
-      
+   
 
       {/* Conditionally render Social Details form */}
       {formSections.social && (
@@ -1335,9 +1515,9 @@ const LandInput = () => {
           fullWidth
           size="small"
           label="Grama Niladhari Division (Name and Number)"
-          name="Grama_Niladhari_Division"
+          name="Social_Grama_Niladhari_Division"
           onChange={handleChange}
-          value={formData.Grama_Niladhari_Division || ""}
+          value={formData.Social_Grama_Niladhari_Division || ""}
           placeholder="e.g., Nugegoda 519"
           InputLabelProps={{ style: { fontSize: 16 } }}
         />
@@ -1586,14 +1766,14 @@ const LandInput = () => {
                   Area of Land
                 </>
               }
-              name="Area_of_Land"
+              name="Social_Area_of_Land"
               onChange={handleChange}
-              value={formData.Area_of_Land}
+              value={formData.Social_Area_of_Land}
               InputLabelProps={{ style: { fontSize: 16 } }}
               type="number" inputProps={{ min: 0 }}
               InputProps={{
                   endAdornment: (
-                  <InputAdornment position="end">{formData.Area_of_Land_Unit}</InputAdornment>
+                  <InputAdornment position="end">{formData.Social_Area_of_Land_Unit}</InputAdornment>
                 ),
               }}
             />
@@ -1601,9 +1781,9 @@ const LandInput = () => {
           <Grid item xs={5}>
             <TextField
               select fullWidth required size="small" label="Unit"
-              name="Area_of_Land_Unit"
+              name="Social_Area_of_Land_Unit"
               onChange={handleChange}
-              value={formData.Area_of_Land_Unit}
+              value={formData.Social_Area_of_Land_Unit}
               InputLabelProps={{ style: { fontSize: 16 } }}
             >
               <MenuItem value="Hectares">Hectares</MenuItem>
@@ -1744,12 +1924,12 @@ const LandInput = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        onChange={handleImageChange}
+                        onChange={handleSocialImageChange}
                       />
                     </Button>
                     
                     <Grid container spacing={2} sx={{ mt: 2 }}>
-                      {imagePreviews.map((preview, index) => (
+                      {socialImagePreviews.map((preview, index) => (
                         <Grid item xs={6} key={index}>
                           <Box sx={{ 
                             position: 'relative',
@@ -1779,14 +1959,14 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveExistingImage(index)}
+                              onClick={() => handleRemoveSocialImage(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                          </Box>
                         </Grid>
                       ))}
-                      {formData.Land_images && formData.Land_images.map((imageUrl, index) => (
+                      {formData.Social_images && formData.Social_images.map((imageUrl, index) => (
                         <Grid item xs={6} key={`existing-${index}`}>
                           <Box sx={{ 
                             position: 'relative',
@@ -1816,7 +1996,7 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveExistingImage(index)}
+                              onClick={() => handleRemoveSocialImage(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -1849,12 +2029,12 @@ const LandInput = () => {
                         type="file"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                         multiple
-                        onChange={handleDocumentChange}
+                        onChange={handleSocialDocumentChange}
                       />
                     </Button>
                     
                     <Grid container spacing={2} sx={{ mt: 2 }}>
-                      {documentPreviews.map((doc, index) => (
+                      {socialDocumentPreviews.map((doc, index) => (
                         <Grid item xs={12} key={index}>
                           <Box sx={{ 
                             position: 'relative',
@@ -1883,14 +2063,14 @@ const LandInput = () => {
                                 padding: '4px',
                                 size: 'small'
                               }}
-                              onClick={() => handleRemoveExistingDocument(index)}
+                              onClick={() => handleRemoveSocialDocument(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Box>
                         </Grid>
                       ))}
-                      {formData.Land_documents && formData.Land_documents.map((docUrl, index) => (
+                      {formData.Social_documents && formData.Social_documents.map((docUrl, index) => (
                         <Grid item xs={12} key={`existing-doc-${index}`}>
                           <Box sx={{ 
                             position: 'relative',
@@ -1972,7 +2152,7 @@ const LandInput = () => {
                                 size: 'small',
                                 flexShrink: 0
                               }}
-                              onClick={() => handleRemoveExistingDocument(index)}
+                              onClick={() => handleRemoveSocialDocument(index)}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -1987,9 +2167,6 @@ const LandInput = () => {
           </Box>
         </Container>
       )}
-
-
-
 
 
       {/* Submit Button after all forms */}
