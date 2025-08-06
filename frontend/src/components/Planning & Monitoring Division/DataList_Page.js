@@ -2,21 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Button,
-    Typography,
-    Container,
-    IconButton,
-    TextField,
-    Grid,
-    Box,
-    MenuItem
+    Table, TableBody, TableCell, TableContainer,
+    TableHead, TableRow, Paper, Button, Typography, Container,
+    IconButton, TextField, Grid, Box, MenuItem, Chip
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -25,8 +13,6 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-
-
 const LandList = () => {
     const [lands, setLands] = useState([]);
     const [searchCriteria, setSearchCriteria] = useState({
@@ -34,7 +20,8 @@ const LandList = () => {
         Districts: "",
         Divisional_secretariats: "",
         Land_ownership: "",
-        Land_owner_name: ""
+        Land_Area_of_Land: "",
+        // Land_owner_name: ""
     });
 
     // Province and Districts arrays
@@ -79,7 +66,6 @@ const LandList = () => {
     const land_ownerships = ["Government", "Private Own"];
 
 
-
     useEffect(() => {
         const fetchLands = async () => {
             try {
@@ -98,7 +84,6 @@ const LandList = () => {
 
         fetchLands();
     }, [searchCriteria]); // Re-fetch when search criteria changes
-
 
     // Handle search input changes
     const handleSearchChange = (event) => {
@@ -119,11 +104,21 @@ const LandList = () => {
             .catch(err => console.error(err));
     };
 
+    // Helper function to get section chips
+    const getSectionChips = (land) => {
+        const chips = [];
+        if (land.formSections?.land) {
+            chips.push(<Chip key="land" label="Land" color="primary" size="small" sx={{ mr: 0.5 }} />);
+        }
+        if (land.formSections?.social) {
+            chips.push(<Chip key="social" label="Social" color="secondary" size="small" />);
+        }
+        return chips.length > 0 ? chips : <Chip label="Legacy" color="default" size="small" />;
+    };
 
 
     return (
         <Container maxWidth="xl" sx={{ 
-            // backgroundColor: '#eef2f6', // Light grey background
             background: 'linear-gradient(to right bottom,rgb(245, 220, 198),rgb(255, 140, 0))',
             minHeight: '100vh',
             py: 5,
@@ -131,21 +126,14 @@ const LandList = () => {
 
             {/* Search Section */}
             <Box sx={{ 
-                mb: 4, 
-                mt: 3, 
-                p: 3, // Add padding
-                // backgroundColor: 'rgba(255, 140, 0, 0.1)', // Light orange background
-                backgroundColor: 'white',
-                border: '2px solid rgb(251, 58, 0)', // Orange border
-                borderRadius: 2, // Rounded corners
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Subtle shadow
+                mb: 4, mt: 3, p: 3, backgroundColor: 'white',
+                border: '2px solid rgb(251, 58, 0)',
+                borderRadius: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             }}>
 
                 <Typography variant="h6" gutterBottom sx={{
                     color: 'rgb(251, 58, 0)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontWeight: 'bold'
+                    display: 'flex', alignItems: 'center',      fontWeight: 'bold'
                 }}>
                     <SearchIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                     Search
@@ -220,17 +208,19 @@ const LandList = () => {
                     <Grid item xs={12} md={6}>
                         <TextField
                             fullWidth
-                            label="Search by Land Owner Name"
-                            name="Land_owner_name"
-                            value={searchCriteria.Land_owner_name}
+                            label="Search by Land Area"
+                            name="Land_Area_of_Land"
+                            value={searchCriteria.Land_Area_of_Land}
                             onChange={handleSearchChange}
                             size="small"
+                            placeholder="e.g. 5, >10, <20, 10-50"
+                            helperText="Enter area value or range (e.g., 5, >10, <20, 10-50)"
                         />
                     </Grid>
                 </Grid>
 
                 {/* Clear Search Button */}
-                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
                     <Button
                         variant="outlined"
                         onClick={() => setSearchCriteria({
@@ -238,7 +228,8 @@ const LandList = () => {
                             Districts: "",
                             Divisional_secretariats: "",
                             Land_ownership: "",
-                            Land_owner_name: ""
+                            Land_Area_of_Land: "",
+                            // Land_owner_name: ""
                         })}
                         size="small"
                         sx={{
@@ -256,7 +247,6 @@ const LandList = () => {
                 </Box>
 
             </Box>
-
 
             {/* Create Action Button */}
             <Box sx={{ display: 'flex', gap: 2, mb: 3, mt: 3 }}>
@@ -293,63 +283,86 @@ const LandList = () => {
                 </Button>
             </Box>
 
-
+            {/* Main Content */}
             <Box sx={{ 
-                mb: 4, 
-                mt: 3, 
-                p: 3, // Add padding
-                backgroundColor: 'white',
-                border: '1px solid rgb(251, 58, 0)', // Orange border
-                borderRadius: 2, // Rounded corners
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Subtle shadow
+                mb: 4, mt: 3, p: 3, backgroundColor: 'white',
+                border: '1px solid rgb(251, 58, 0)',
+                borderRadius: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             }}>
 
                 <Typography variant="h4" component="h2" gutterBottom>
-                    Land Registered List
+                    Land & Social Data List
                 </Typography>
 
                 {/* Land List Table */}  
                 <TableContainer component={Paper} elevation={3}>
                     <Table sx={{ minWidth: 650 }} aria-label="land list table">
+
                         <TableHead>
                             <TableRow sx={{ backgroundColor: 'primary.main' }}>
-                                <TableCell sx={{ color: 'white' }}>Land ID</TableCell>
+                                {/* <TableCell sx={{ color: 'white' }}>Land ID</TableCell> */}
                                 <TableCell sx={{ color: 'white' }}>Province</TableCell>
                                 <TableCell sx={{ color: 'white' }}>District</TableCell>
                                 <TableCell sx={{ color: 'white' }}>Divisional Secretariat</TableCell>
-                                <TableCell sx={{ color: 'white' }}>Grama Niladhari Division</TableCell>
+                                <TableCell sx={{ color: 'white' }}>GN Division</TableCell>
                                 <TableCell sx={{ color: 'white' }}>Land Location</TableCell>
-                                <TableCell sx={{ color: 'white' }}>Area of Land</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Land Area</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Social Area</TableCell>
+                                <TableCell sx={{ color: 'white' }}>Sections</TableCell>
                                 <TableCell sx={{ color: 'white' }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
+
                         <TableBody>
                             {lands.map((land) => (
                                 <TableRow key={land._id} hover>
-                                    <TableCell>{land._id}</TableCell>
+                                    {/* <TableCell sx={{ fontSize: '12px' }}>{land._id}</TableCell> */}
                                     <TableCell>{land.Provinces}</TableCell>
                                     <TableCell>{land.Districts}</TableCell>
                                     <TableCell>{land.Divisional_secretariats}</TableCell>
-                                    <TableCell>{land.Grama_Niladhari_divisions}</TableCell>
-                                    <TableCell>{land.Land_location}</TableCell>
-                                    <TableCell>{land.Area_of_Land}</TableCell>
+                                    <TableCell>
+                                        {land.Land_Grama_Niladhari_Division || 
+                                         land.Social_Grama_Niladhari_Division || 
+                                         land.Grama_Niladhari_divisions || 
+                                         'N/A'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {land.Land_location || 
+                                         land.Land_address || 
+                                         'N/A'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {land.Land_Area_of_Land ? 
+                                            `${land.Land_Area_of_Land} ${land.Land_Area_of_Land_Unit}` : 
+                                            land.Area_of_Land || 'N/A'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {land.Social_Area_of_Land ? 
+                                            `${land.Social_Area_of_Land} ${land.Social_Area_of_Land_Unit}` : 
+                                            'N/A'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {getSectionChips(land)}
+                                    </TableCell>
+
+                                    {/* action buttons */}
                                     <TableCell>
                                         <IconButton
                                             component={Link}
-                                            to={`/land/${land._id}`}
+                                            to={`/data/details/${land._id}`}
                                             color="info"
                                             size="small"
                                         >
                                             <VisibilityIcon />
                                         </IconButton>
-                                        <IconButton
+                                        {/* <IconButton
                                             component={Link}
-                                            to={`/edit/land/${land._id}`}
+                                            to={`/edit/data/${land._id}`}
                                             color="warning"
                                             size="small"
                                         >
                                             <EditIcon />
-                                        </IconButton>
+                                        </IconButton> */}
                                         <IconButton
                                             onClick={() => handleDelete(land._id)}
                                             color="error"
@@ -358,17 +371,17 @@ const LandList = () => {
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>
+                                    
                                 </TableRow>
                             ))}
                         </TableBody>
+
                     </Table>
                 </TableContainer>
-
-            </Box>  
+            </Box> 
 
         </Container>
     );
-
 };
 
 export default LandList;
