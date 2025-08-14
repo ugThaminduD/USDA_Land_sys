@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Button, Typography, Container,
     IconButton, TextField, Grid, Box, MenuItem, Chip
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import {
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    ArrowBack as ArrowBackIcon,
+    Visibility as VisibilityIcon,
+    Add as AddIcon,
+    Search as SearchIcon,
+    CloudUpload as CloudUploadIcon
+} from "@mui/icons-material";
 
 const LandList = () => {
+    const navigate = useNavigate();
     const [lands, setLands] = useState([]);
     const [searchCriteria, setSearchCriteria] = useState({
         Provinces: "",
@@ -114,6 +118,11 @@ const LandList = () => {
             chips.push(<Chip key="social" label="Social" color="secondary" size="small" />);
         }
         return chips.length > 0 ? chips : <Chip label="Legacy" color="default" size="small" />;
+    };
+
+    // Handle back navigation
+    const handleBack = () => {
+        navigate(-1); // Go back to previous page
     };
 
 
@@ -250,6 +259,24 @@ const LandList = () => {
 
             {/* Create Action Button */}
             <Box sx={{ display: 'flex', gap: 2, mb: 3, mt: 3 }}>
+
+                <Button
+                    variant="contained"
+                    startIcon={<ArrowBackIcon />}
+                    onClick={handleBack}
+                    sx={{ 
+                        backgroundColor: '#f44336',
+                        color: 'white',
+                        '&:hover': { 
+                            backgroundColor: '#d32f2f',
+                            transform: 'scale(1.05)'
+                        },
+                        transition: 'all 0.2s ease-in-out'
+                    }}
+                >
+                    Back
+                </Button>
+
                 <Button
                     variant="contained"
                     color="primary"
@@ -281,6 +308,7 @@ const LandList = () => {
                 >
                     View Excel Data
                 </Button>
+
             </Box>
 
             {/* Main Content */}
@@ -355,14 +383,14 @@ const LandList = () => {
                                         >
                                             <VisibilityIcon />
                                         </IconButton>
-                                        {/* <IconButton
+                                        <IconButton
                                             component={Link}
                                             to={`/edit/data/${land._id}`}
                                             color="warning"
                                             size="small"
                                         >
                                             <EditIcon />
-                                        </IconButton> */}
+                                        </IconButton>
                                         <IconButton
                                             onClick={() => handleDelete(land._id)}
                                             color="error"

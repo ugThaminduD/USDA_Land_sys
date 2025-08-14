@@ -72,10 +72,85 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Get user by ID (admin only)
+const getUserById = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    const user = await UserModel.findById(req.params.id, "-pwd");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update user (admin only)
+const updateUser = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    const { un, pwd, role } = req.body;
+    const updateData = { un, role };
+    
+    // Only hash password if provided
+    if (pwd) {
+      updateData.pwd = await bcrypt.hash(pwd, 10);
+    }
+    
+    const user = await UserModel.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select("-pwd");
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.json({ message: "User updated successfully", user });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Delete user (admin only)
+const deleteUser = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+    
+    const user = await UserModel.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    // Prevent admin from deleting themselves
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ message: "Cannot delete your own account" });
+    }
+    
+    await UserModel.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   createUser,
   getAllUsers,
   loginUser,
+  getUserById,
+  updateUser,
+  deleteUser,
   // ...other exports...
 };
