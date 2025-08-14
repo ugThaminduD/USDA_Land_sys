@@ -53,9 +53,8 @@ const LandInput = () => {
   const [socialDocumentPreviews, setSocialDocumentPreviews] = useState([]);
 
   const navigate = useNavigate();
-  const handleBackToHome = () => {
-    navigate("/");
-  };
+  const handleBackToHome = () => { navigate("/"); };
+
   const [toast, setToast] = useState({
     open: false,
     message: "",
@@ -138,6 +137,8 @@ const LandInput = () => {
       Social_documents: []
       ////
   });
+
+  
 
   // Add useEffect to fetch land data if id exists
   useEffect(() => {
@@ -989,7 +990,7 @@ const LandInput = () => {
                       onChange={handleChange}
                       value={formData.Land_Area_of_Land}
                       InputLabelProps={{ style: { fontSize: 16 } }}
-                      type="number" inputProps={{ min: 0 }}
+                      type="number" inputProps={{ min: 0, step: 0.01 }}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">{formData.Land_Area_of_Land_Unit}</InputAdornment>
@@ -1770,7 +1771,7 @@ const LandInput = () => {
               onChange={handleChange}
               value={formData.Social_Area_of_Land}
               InputLabelProps={{ style: { fontSize: 16 } }}
-              type="number" inputProps={{ min: 0 }}
+              type="number" inputProps={{ min: 0, step: 0.01 }}
               InputProps={{
                   endAdornment: (
                   <InputAdornment position="end">{formData.Social_Area_of_Land_Unit}</InputAdornment>

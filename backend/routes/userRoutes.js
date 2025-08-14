@@ -7,12 +7,12 @@ const router = express.Router();
 
 router.post('/login', loginUser);
 
-router.post('/add', protect, createUser); // Only admin can create
+router.post('/add', protect, createUser); // Only admin can do CRUD operations on users
 router.get('/getALL', protect, getAllUsers);
-// router.get('/get/:id', getUserById);
+router.get('/get/:id', protect, getUserById);
 
-// router.put('/update/:id', updateUser);
-// router.delete('/delete/:id', deleteUser);
+router.put('/update/:id', protect, updateUser);
+router.delete('/delete/:id', protect, deleteUser);
 
 
 
