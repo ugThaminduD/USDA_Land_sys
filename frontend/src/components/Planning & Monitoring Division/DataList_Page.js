@@ -282,7 +282,7 @@ const LandList = () => {
                     color="primary"
                     startIcon={<AddIcon />}
                     component={Link}
-                    to="/input"
+                    to="/data/input"
                 >
                     Create New Land
                 </Button>

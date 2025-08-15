@@ -31,6 +31,20 @@ const LandSchema = new Schema(
             required: true,
         },
 
+
+        // Form Section Tracking (to know which sections were filled)
+        formSections: {
+            land: {
+                type: Boolean,
+                default: false
+            },
+            social: {
+                type: Boolean,
+                default: false
+            }
+        },
+        
+        
         // LAND DETAILS SECTION
         // Land Basic Info
         Land_address: {
@@ -67,7 +81,37 @@ const LandSchema = new Schema(
         Land_current_use: {
             type: String,
             required: false
+        }, 
+        
+        // Land Ownership Details
+        Land_ownership: {
+            type: String,
+            required: function() {
+                return this.formSections && this.formSections.land;
+            },
+            enum: ["Government", "Private Own", ""]
         },
+        Land_owner_name: {
+            type: String,
+            required: function() {
+                return this.formSections && this.formSections.land;
+            }
+        },
+        Land_owner_address: {
+            type: String,
+            required: false
+        },
+        email: {
+            type: String,
+            required: false,
+            match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address"]
+        },
+        phone_number: {
+            type: String,
+            required: false,
+            match: [/^\d{10}$/, "Phone number must be 10 digits"]
+        },
+
 
         // Local Employee Details (Land)
         local_employee_name: {
@@ -95,34 +139,7 @@ const LandSchema = new Schema(
             }
         },
 
-        // Land Ownership Details
-        Land_ownership: {
-            type: String,
-            required: function() {
-                return this.formSections && this.formSections.land;
-            },
-            enum: ["Government", "Private Own"]
-        },
-        Land_owner_name: {
-            type: String,
-            required: function() {
-                return this.formSections && this.formSections.land;
-            }
-        },
-        Land_owner_address: {
-            type: String,
-            required: false
-        },
-        email: {
-            type: String,
-            required: false,
-            match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address"]
-        },
-        phone_number: {
-            type: String,
-            required: false,
-            match: [/^\d{10}$/, "Phone number must be 10 digits"]
-        },
+
 
         // SOCIAL DETAILS SECTION
         Social_Grama_Niladhari_Division: {
@@ -215,17 +232,48 @@ const LandSchema = new Schema(
         },
 
         // Social Land Details
-        Social_Area_of_Land: {
-            type: String,
-            required: function() {
-                return this.formSections && this.formSections.social;
-            }
-        },
-        Social_Area_of_Land_Unit: {
-            type: String,
-            default: "Hectares",
-            enum: ["Hectares", "Perches", "Acres", "Square Feet"]
-        },
+        // Social_Area_of_Land: {
+        //     type: String,
+        //     required: function() {
+        //         return this.formSections && this.formSections.social;
+        //     }
+        // },
+        // Social_Area_of_Land_Unit: {
+        //     type: String,
+        //     default: "Hectares",
+        //     enum: ["Hectares", "Perches", "Acres", "Square Feet"]
+        // },
+
+// Add this field to the LandSchema
+landEntries: [{
+    landArea: {
+        type: String,
+        required: false
+    },
+    landAreaUnit: {
+        type: String,
+        default: "Hectares",
+        enum: ["Hectares", "Perches", "Acres"]
+    },
+    landLocation: {
+        type: String,
+        required: false
+    },
+    ownership: {
+        type: String,
+        required: false,
+        enum: ["Government", "Private Own"]
+    },
+    companyName: {
+        type: String,
+        required: false
+    },
+    companyAddress: {
+        type: String,
+        required: false
+    }
+}],
+
         Land_Extent: {
             type: String,
             required: false
@@ -261,19 +309,9 @@ const LandSchema = new Schema(
             required: false
         }],
 
-        // Form Section Tracking (to know which sections were filled)
-        formSections: {
-            land: {
-                type: Boolean,
-                default: false
-            },
-            social: {
-                type: Boolean,
-                default: false
-            }
-        },
 
-        // Legacy fields (keeping for backward compatibility)
+
+        //// Legacy fields (keeping for backward compatibility)
         Area_of_Land: {
             type: String,
             required: false

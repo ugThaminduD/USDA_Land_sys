@@ -6,11 +6,9 @@ import {
   Grid,
   Container,
   Typography,
-  Link,
-  Stack,
-  Alert,
-  Snackbar,
-  IconButton, 
+  Link, Stack, Alert, Snackbar,
+  IconButton, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper,
 } from "@mui/material";
 
 import { useState, useEffect } from "react";
@@ -22,6 +20,8 @@ import FilePresentIcon from "@mui/icons-material/FilePresent";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
+
 import { Checkbox, FormGroup, FormControlLabel } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment";
 
@@ -85,19 +85,19 @@ const LandInput = () => {
       Land_documents: [],
       Land_current_use: "",
 
-      // Local Employee Details (Land)
-      local_employee_name: "",
-      Land_Grama_Niladhari_Division: "",
-      local_employee_phone_number: "",
-      local_employee_email: "",
-      Day_of_Entry: "",
-      
       // Ownership Details (Land)
       Land_ownership: "",
       Land_owner_name: "",
       Land_owner_address: "",
       email: "",
-      phone_number: "",
+      phone_number: "",      
+
+      // Local Employee Details (Land)
+      local_employee_name: "",
+      Land_Grama_Niladhari_Division: "",
+      local_employee_phone_number: "",
+      local_employee_email: "",
+      Day_of_Entry: "",   
       ////
 
       //// Social Details fields
@@ -122,8 +122,8 @@ const LandInput = () => {
       Families_in_Other_Housing: "",
       
       // Social Land Details
-      Social_Area_of_Land: "",
-      Social_Area_of_Land_Unit: "Hectares",
+      // Social_Area_of_Land: "",
+      // Social_Area_of_Land_Unit: "Hectares",
       Land_Extent: "",
       Land_Lot_Details: "",
       
@@ -137,8 +137,18 @@ const LandInput = () => {
       Social_documents: []
       ////
   });
+  const [landEntries, setLandEntries] = useState([
+    {
+      id: 1,
+      landArea: "",
+      landAreaUnit: "Hectares",
+      landLocation: "",
+      ownership: "",
+      companyName: "",
+      companyAddress: ""
+    }
+  ]);
 
-  
 
   // Add useEffect to fetch land data if id exists
   useEffect(() => {
@@ -335,8 +345,7 @@ const LandInput = () => {
       return;
     }
     
-    // Enhanced validation
-    const validationErrors = {};
+    const validationErrors = {};  // Enhanced validation
 
     // Only validate Land fields if Land section is selected
     if (formSections.land) {
@@ -356,10 +365,26 @@ const LandInput = () => {
     
     // Only validate Social fields if Social section is selected
     if (formSections.social) {
-      if (!formData.Social_Area_of_Land) {
-        validationErrors.Social_Area_of_Land = "Social area of land is required";
-      }
+      // if (!formData.Social_Area_of_Land) {
+      //   validationErrors.Social_Area_of_Land = "Social area of land is required";
+      // }
+
+      // Validate land entries if social section is selected
+      landEntries.forEach((entry, index) => {
+        if (!entry.landArea) {
+          validationErrors[`landEntry_${index}_landArea`] = `Land area is required for entry ${index + 1}`;
+        }
+        if (!entry.ownership) {
+          validationErrors[`landEntry_${index}_ownership`] = `Ownership is required for entry ${index + 1}`;
+        }
+        // if (!entry.companyName) {
+        //   validationErrors[`landEntry_${index}_companyName`] = `Company/Owner name is required for entry ${index + 1}`;
+        // }
+      });
+
     }
+
+
 
     // Common field validations
     if (!formData.Provinces) {
@@ -497,10 +522,12 @@ const LandInput = () => {
         Social_images: socialImageUrls,
         Social_documents: socialDocumentUrls,
         formSections: formSections,
+        landEntries: landEntries,
       };
 
       // Debugging logs
       console.log("Data being sent to backend:", formattedData);
+      console.log("Land entries:", landEntries);
       console.log("Land images:", landImageUrls);
       console.log("Social images:", socialImageUrls);
       console.log("Land documents:", landDocumentUrls);
@@ -577,8 +604,9 @@ const LandInput = () => {
               Families_in_Other_Housing: "",
               
               // Social Land Details
-              Social_Area_of_Land: "",
-              Social_Area_of_Land_Unit: "Hectares",
+              // Social_Area_of_Land: "",
+              // Social_Area_of_Land_Unit: "Hectares",
+
               Land_Extent: "",
               Land_Lot_Details: "",
               
@@ -596,6 +624,18 @@ const LandInput = () => {
               land: false,
               social: false,
             });
+            // Reset land entries
+            setLandEntries([
+              {
+                id: 1,
+                landArea: "",
+                landAreaUnit: "Hectares",
+                landLocation: "",
+                ownership: "",
+                companyName: "",
+                companyAddress: ""
+              }
+            ]);            
             // Reset image and document states
             setSelectedImages([]);
             setImagePreviews([]);
@@ -688,6 +728,35 @@ const LandInput = () => {
     return true;
   };
 
+  // Function to add new land entry
+  const addLandEntry = () => {
+    const newEntry = {
+      id: Date.now(),
+      landArea: "",
+      landAreaUnit: "Hectares",
+      landLocation: "",
+      ownership: "",
+      companyName: "",
+      companyAddress: ""
+    };
+    setLandEntries([...landEntries, newEntry]);
+  };
+  // Function to remove land entry
+  const removeLandEntry = (id) => {
+    if (landEntries.length > 1) {
+      setLandEntries(landEntries.filter(entry => entry.id !== id));
+    }
+  };
+
+  // Function to update land entry
+  const updateLandEntry = (id, field, value) => {
+    setLandEntries(landEntries.map(entry => 
+      entry.id === id ? { ...entry, [field]: value } : entry
+    ));
+  };
+
+
+
   // Close toast alert msg
   const handleCloseToast = () => {
     setToast({ ...toast, open: false });
@@ -778,19 +847,19 @@ const LandInput = () => {
 
       {/* Common field Form */} 
       <Container
-        maxWidth="md"
+        maxWidth="lg"
         sx={{
           background: "#fff",
           borderRadius: 2, boxShadow: 2,
-          mt: 4, mb: 2, px: { xs: 1, sm: 4 },
+          mt: 4, mb: 2, px: { xs: 1, sm: 6 },
           py: 4, border: "1.5px solid #b71c1c",
         }}
       >
         <Box>
           <Grid
             container
-            spacing={2}
-            sx={{ background: FORM_BG, borderRadius: 2, p: 1 }}
+            spacing={3}
+            sx={{ background: FORM_BG, borderRadius: 2, p: 3 }}
           >
             {/* Location Details */}
             <Grid item xs={12}>
@@ -882,7 +951,7 @@ const LandInput = () => {
 
       {/* Section selection => LAND OR SOCIAL */}
       <Container
-        maxWidth="md"
+        maxWidth="lg"
         sx={{
           background: "#fff",
           borderRadius: 2, boxShadow: 2,
@@ -891,7 +960,7 @@ const LandInput = () => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", mb: 2, justifyContent: "space-between" }}>
-          <Typography variant="body2" sx={{ color: "#888", mt: 1 }}>
+          <Typography variant="body2" sx={{ color: "#888", mt: 1, fontSize: 16, fontWeight: "bold" }}>
             Select which details you want to add.
           </Typography>
           <FormGroup row>
@@ -926,12 +995,12 @@ const LandInput = () => {
       {/* Conditionally render Land Details form */}
       {formSections.land && (
         <Container
-          maxWidth="md"
+          maxWidth="lg"
           sx={{
             background: "#fff",
             borderRadius: 2,
             boxShadow: 2,
-            mt: 4, mb: 2, px: { xs: 1, sm: 4 },
+            mt: 4, mb: 2, px: { xs: 1, sm: 6 },
             py: 4, border: "1.5px solid #b71c1c",
           }}
         >
@@ -1312,83 +1381,6 @@ const LandInput = () => {
                 />
               </Grid> 
 
-              {/* Local Employee Details */}
-              <Grid item xs={12} sx={{ mt: 2 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 600, fontSize: 18, background: SECTION_HEADER_BG,
-                    color: SECTION_HEADER_TEXT,
-                    borderRadius: 1, px: 3, mb: 1
-                  }}
-                >
-                  Local Employee Details (Grama Niladhari)
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth size="small"
-                  label="Local Employee Name"
-                  name="local_employee_name"
-                  onChange={handleChange}
-                  value={formData.local_employee_name}
-                  InputLabelProps={{ style: { fontSize: 16 } }}
-                />
-              </Grid>
-              {/* Grama Niladhari Division Details */}
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Grama Niladhari Division (Name and Number)"
-                  name="Land_Grama_Niladhari_Division"
-                  onChange={handleChange}
-                  value={formData.Land_Grama_Niladhari_Division || ""}
-                  placeholder="e.g., Nugegoda 519"
-                  InputLabelProps={{ style: { fontSize: 16 } }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth size="small"
-                  label="Local Employee Phone Number"
-                  name="local_employee_phone_number"
-                  onChange={handleChange}
-                  value={formData.local_employee_phone_number}
-                  error={!!errors.phone_number}
-                  helperText={errors.phone_number}
-                  InputLabelProps={{ style: { fontSize: 16 } }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth type="email" size="small"
-                  label="Email"
-                  name="local_employee_email"
-                  onChange={handleChange}
-                  value={formData.local_employee_email}
-                  error={!!errors.local_employee_email}
-                  helperText={errors.local_employee_email}
-                  InputLabelProps={{ style: { fontSize: 16 } }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth required type="date" size="small"
-                  label={
-                    <>
-                      <span style={{ color: REQUIRED_COLOR }}>*</span> Day of
-                      Entry
-                    </>
-                  }
-                  name="Day_of_Entry"
-                  onChange={handleChange}
-                  value={formData.Day_of_Entry}
-                  InputLabelProps={{ shrink: true, style: { fontSize: 16 } }}
-                />
-              </Grid>
-
-
-
               {/* Ownership Details */}
               <Grid item xs={12} sx={{ mt: 2 }}>
                 <Typography
@@ -1472,6 +1464,166 @@ const LandInput = () => {
                 />
               </Grid>
 
+              {/* Local Employee Details */}
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 600, fontSize: 18, background: SECTION_HEADER_BG,
+                    color: SECTION_HEADER_TEXT,
+                    borderRadius: 1, px: 3, mb: 1
+                  }}
+                >
+                  Local Employee Details (Grama Niladhari)
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth size="small"
+                  label="Local Employee Name"
+                  name="local_employee_name"
+                  onChange={handleChange}
+                  value={formData.local_employee_name}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              {/* Grama Niladhari Division Details */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Grama Niladhari Division (Name and Number)"
+                  name="Land_Grama_Niladhari_Division"
+                  onChange={handleChange}
+                  value={formData.Land_Grama_Niladhari_Division || ""}
+                  placeholder="e.g., Nugegoda 519"
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth size="small"
+                  label="Local Employee Phone Number"
+                  name="local_employee_phone_number"
+                  onChange={handleChange}
+                  value={formData.local_employee_phone_number}
+                  error={!!errors.phone_number}
+                  helperText={errors.phone_number}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth type="email" size="small"
+                  label="Email"
+                  name="local_employee_email"
+                  onChange={handleChange}
+                  value={formData.local_employee_email}
+                  error={!!errors.local_employee_email}
+                  helperText={errors.local_employee_email}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth required type="date" size="small"
+                  label={
+                    <>
+                      <span style={{ color: REQUIRED_COLOR }}>*</span> Day of
+                      Entry
+                    </>
+                  }
+                  name="Day_of_Entry"
+                  onChange={handleChange}
+                  value={formData.Day_of_Entry}
+                  InputLabelProps={{ shrink: true, style: { fontSize: 16 } }}
+                />
+              </Grid>
+
+
+
+              {/* Ownership Details */}
+              {/* <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 600, fontSize: 18, background: SECTION_HEADER_BG,
+                    color: SECTION_HEADER_TEXT,
+                    borderRadius: 1, px: 3, mb: 1
+                  }}
+                >
+                  Ownership Details
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  select fullWidth required size="small"
+                  label={
+                    <>
+                      <span style={{ color: REQUIRED_COLOR }}>*</span> Land
+                      Ownership
+                    </>
+                  }
+                  name="Land_ownership"
+                  onChange={handleChange}
+                  value={formData.Land_ownership}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                >
+                  {land_ownerships.map((ownership) => (
+                    <MenuItem key={ownership} value={ownership}>
+                      {ownership}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth required size="small"
+                  label={
+                    <>
+                      <span style={{ color: REQUIRED_COLOR }}>*</span> 
+                      Land Owner Name/ Government Office
+                    </>
+                  }
+                  name="Land_owner_name"
+                  onChange={handleChange}
+                  value={formData.Land_owner_name}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth size="small"
+                  label="Land Owner Address"
+                  name="Land_owner_address"
+                  onChange={handleChange}
+                  value={formData.Land_owner_address}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth type="email" size="small"
+                  label="Email"
+                  name="email"
+                  onChange={handleChange}
+                  value={formData.email}
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth multiline rows={2} size="small"
+                  label="Phone Numbers"
+                  name="phone_number"
+                  onChange={handleChange}
+                  value={formData.phone_number}
+                  error={!!errors.phone_number}
+                  helperText={errors.phone_number}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid> */}
+
             </Grid>
           </Box>
         </Container>
@@ -1481,12 +1633,12 @@ const LandInput = () => {
       {/* Conditionally render Social Details form */}
       {formSections.social && (
         <Container
-          maxWidth="md"
+          maxWidth="lg"
           sx={{
             background: "#fff",
             borderRadius: 2,
             boxShadow: 2,
-            mt: 4, mb: 6, px: { xs: 1, sm: 4 },
+            mt: 4, mb: 6, px: { xs: 1, sm: 6 },
             py: 4, border: "1.5px solid #1976d2",
           }}
         >
@@ -1510,397 +1662,788 @@ const LandInput = () => {
                 </Typography>
               </Grid>
 
-      {/* Grama Niladhari Division Details */}
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          label="Grama Niladhari Division (Name and Number)"
-          name="Social_Grama_Niladhari_Division"
-          onChange={handleChange}
-          value={formData.Social_Grama_Niladhari_Division || ""}
-          placeholder="e.g., Nugegoda 519"
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
+              {/* Grama Niladhari Division Details */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Grama Niladhari Division (Name and Number)"
+                  name="Social_Grama_Niladhari_Division"
+                  onChange={handleChange}
+                  value={formData.Social_Grama_Niladhari_Division || ""}
+                  placeholder="e.g., Nugegoda 519"
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
 
-      {/* Population Details */}
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Total Population"
-          name="Total_Population"
-          onChange={handleChange}
-          value={formData.Total_Population || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Total Number of Families"
-          name="Total_Families"
-          onChange={handleChange}
-          value={formData.Total_Families || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>      
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Total Male Population"
-          name="Total_Male_Population"
-          onChange={handleChange}
-          value={formData.Total_Male_Population || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Total Female Population"
-          name="Total_Female_Population"
-          onChange={handleChange}
-          value={formData.Total_Female_Population || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>      
+              {/* Population Details */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Total Population"
+                  name="Total_Population"
+                  onChange={handleChange}
+                  value={formData.Total_Population || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Total Number of Families"
+                  name="Total_Families"
+                  onChange={handleChange}
+                  value={formData.Total_Families || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>      
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Total Male Population"
+                  name="Total_Male_Population"
+                  onChange={handleChange}
+                  value={formData.Total_Male_Population || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Total Female Population"
+                  name="Total_Female_Population"
+                  onChange={handleChange}
+                  value={formData.Total_Female_Population || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>      
 
-      {/* Housing Details */}
-      <Grid item xs={12} sx={{ mt: 2 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 600,
-            fontSize: 18,
-            background: SECTION_HEADER_BG,
-            color: SECTION_HEADER_TEXT,
-            borderRadius: 1,
-            px: 3,
-            mb: 1,
-          }}
-        >
-          Housing Details
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#888", mt: 1 }}>
-          ***Only fill the relevant fields
-        </Typography>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Shanty Housing Units"
-          name="Shanty_Housing_Units"
-          onChange={handleChange}
-          value={formData.Shanty_Housing_Units || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Families in Shanties"
-          name="Families_in_Shanties"
-          onChange={handleChange}
-          value={formData.Families_in_Shanties || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Slum Housing Units"
-          name="Slum_Housing_Units"
-          onChange={handleChange}
-          value={formData.Slum_Housing_Units || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Families in Slums"
-          name="Families_in_Slums"
-          onChange={handleChange}
-          value={formData.Families_in_Slums || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Line Room Housing Units"
-          name="Line_Room_Housing_Units"
-          onChange={handleChange}
-          value={formData.Line_Room_Housing_Units || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Families in Line Rooms"
-          name="Families_in_Line_Rooms"
-          onChange={handleChange}
-          value={formData.Families_in_Line_Rooms || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Scattered Housing Units"
-          name="Scattered_Housing_Units"
-          onChange={handleChange}
-          value={formData.Scattered_Housing_Units || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Families in Scattered Housing"
-          name="Families_in_Scattered_Housing"
-          onChange={handleChange}
-          value={formData.Families_in_Scattered_Housing || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Housing Units in Vulnerable Condition"
-          name="Vulnerable_Housing_Units"
-          onChange={handleChange}
-          value={formData.Vulnerable_Housing_Units || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Number of Families in Vulnerable Housing"
-          name="Families_in_Vulnerable_Housing"
-          onChange={handleChange}
-          value={formData.Families_in_Vulnerable_Housing || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Other Types of Housing Units"
-          name="Other_Housing_Units"
-          onChange={handleChange}
-          value={formData.Other_Housing_Units || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          type="number"
-          label="Families in Other Types of Housing"
-          name="Families_in_Other_Housing"
-          onChange={handleChange}
-          value={formData.Families_in_Other_Housing || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
+              {/* Housing Details */}
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: 18,
+                    background: SECTION_HEADER_BG,
+                    color: SECTION_HEADER_TEXT,
+                    borderRadius: 1,
+                    px: 3,
+                    mb: 1,
+                  }}
+                >
+                  Housing Details
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#888", mt: 1 }}>
+                  ***Only fill the relevant fields
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Shanty Housing Units"
+                  name="Shanty_Housing_Units"
+                  onChange={handleChange}
+                  value={formData.Shanty_Housing_Units || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Families in Shanties"
+                  name="Families_in_Shanties"
+                  onChange={handleChange}
+                  value={formData.Families_in_Shanties || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Slum Housing Units"
+                  name="Slum_Housing_Units"
+                  onChange={handleChange}
+                  value={formData.Slum_Housing_Units || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Families in Slums"
+                  name="Families_in_Slums"
+                  onChange={handleChange}
+                  value={formData.Families_in_Slums || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Line Room Housing Units"
+                  name="Line_Room_Housing_Units"
+                  onChange={handleChange}
+                  value={formData.Line_Room_Housing_Units || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Families in Line Rooms"
+                  name="Families_in_Line_Rooms"
+                  onChange={handleChange}
+                  value={formData.Families_in_Line_Rooms || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Scattered Housing Units"
+                  name="Scattered_Housing_Units"
+                  onChange={handleChange}
+                  value={formData.Scattered_Housing_Units || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Families in Scattered Housing"
+                  name="Families_in_Scattered_Housing"
+                  onChange={handleChange}
+                  value={formData.Families_in_Scattered_Housing || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Housing Units in Vulnerable Condition"
+                  name="Vulnerable_Housing_Units"
+                  onChange={handleChange}
+                  value={formData.Vulnerable_Housing_Units || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Number of Families in Vulnerable Housing"
+                  name="Families_in_Vulnerable_Housing"
+                  onChange={handleChange}
+                  value={formData.Families_in_Vulnerable_Housing || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Other Types of Housing Units"
+                  name="Other_Housing_Units"
+                  onChange={handleChange}
+                  value={formData.Other_Housing_Units || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Families in Other Types of Housing"
+                  name="Families_in_Other_Housing"
+                  onChange={handleChange}
+                  value={formData.Families_in_Other_Housing || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
 
-      {/* Land Details */}
-      <Grid item xs={12} sx={{ mt: 2 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 600,
-            fontSize: 18,
-            background: SECTION_HEADER_BG,
-            color: SECTION_HEADER_TEXT,
-            borderRadius: 1,
-            px: 3,
-            mb: 1,
-          }}
-        >
-          Land Details
-        </Typography>
-      </Grid>      
-      <Grid item xs={12} md={6}>
-        <Grid container spacing={1}>
-          <Grid item xs={7}>
-            <TextField
-              fullWidth required size="small"
-              label={
-                <>
-                  <span style={{ color: REQUIRED_COLOR }}>*</span>
-                  Area of Land
-                </>
-              }
-              name="Social_Area_of_Land"
-              onChange={handleChange}
-              value={formData.Social_Area_of_Land}
-              InputLabelProps={{ style: { fontSize: 16 } }}
-              type="number" inputProps={{ min: 0, step: 0.01 }}
-              InputProps={{
-                  endAdornment: (
-                  <InputAdornment position="end">{formData.Social_Area_of_Land_Unit}</InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item xs={5}>
-            <TextField
-              select fullWidth required size="small" label="Unit"
-              name="Social_Area_of_Land_Unit"
-              onChange={handleChange}
-              value={formData.Social_Area_of_Land_Unit}
-              InputLabelProps={{ style: { fontSize: 16 } }}
-            >
-              <MenuItem value="Hectares">Hectares</MenuItem>
-              <MenuItem value="Perches">Perches</MenuItem>
-              <MenuItem value="Acres">Acres</MenuItem>
-              <MenuItem value="Square Feet">Square Feet</MenuItem>
-            </TextField>
-          </Grid>
-        </Grid>
-      </Grid>      
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          label="Land Extent"
-          name="Land_Extent"
-          onChange={handleChange}
-          value={formData.Land_Extent || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          multiline
-          rows={3}
-          size="small"
-          label="Land Lot Details"
-          name="Land_Lot_Details"
-          onChange={handleChange}
-          value={formData.Land_Lot_Details || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
+              {/* Land Details */}
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: 18,
+                    background: SECTION_HEADER_BG,
+                    color: SECTION_HEADER_TEXT,
+                    borderRadius: 1,
+                    px: 3,
+                    mb: 1,
+                  }}
+                >
+                  Land Details
+                </Typography>
+              </Grid>
 
-      {/* Vulnerability and Livability */}
-      <Grid item xs={12} sx={{ mt: 2 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 600,
-            fontSize: 18,
-            background: SECTION_HEADER_BG,
-            color: SECTION_HEADER_TEXT,
-            borderRadius: 1,
-            px: 3,
-            mb: 1,
-          }}
-        >
-          Vulnerability and Livability
-        </Typography>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          select
-          label="Vulnerability Index"
-          name="Vulnerability_Index"
-          onChange={handleChange}
-          value={formData.Vulnerability_Index || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        >
-          <MenuItem value="Low">Low</MenuItem>
-          <MenuItem value="Moderate">Moderate</MenuItem>
-          <MenuItem value="High">High</MenuItem>
-          <MenuItem value="Critical">Critical</MenuItem>
-        </TextField>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          select
-          label="Livability Condition"
-          name="Livability_Condition"
-          onChange={handleChange}
-          value={formData.Livability_Condition || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        >
-          <MenuItem value="Good">Good</MenuItem>
-          <MenuItem value="Moderate">Moderate</MenuItem>
-          <MenuItem value="Poor">Poor</MenuItem>
-          <MenuItem value="Critical">Critical</MenuItem>
-        </TextField>
-      </Grid>
+              {/* <Grid item xs={12} md={6}>
+                <Grid container spacing={1}>
+                  <Grid item xs={7}>
+                    <TextField
+                      fullWidth required size="small"
+                      label={
+                        <>
+                          <span style={{ color: REQUIRED_COLOR }}>*</span>
+                          Area of Land
+                        </>
+                      }
+                      name="Social_Area_of_Land"
+                      onChange={handleChange}
+                      value={formData.Social_Area_of_Land}
+                      InputLabelProps={{ style: { fontSize: 16 } }}
+                      type="number" inputProps={{ min: 0, step: 0.01 }}
+                      InputProps={{
+                          endAdornment: (
+                          <InputAdornment position="end">{formData.Social_Area_of_Land_Unit}</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={5}>
+                    <TextField
+                      select fullWidth required size="small" label="Unit"
+                      name="Social_Area_of_Land_Unit"
+                      onChange={handleChange}
+                      value={formData.Social_Area_of_Land_Unit}
+                      InputLabelProps={{ style: { fontSize: 16 } }}
+                    >
+                      <MenuItem value="Hectares">Hectares</MenuItem>
+                      <MenuItem value="Perches">Perches</MenuItem>
+                      <MenuItem value="Acres">Acres</MenuItem>
+                      <MenuItem value="Square Feet">Square Feet</MenuItem>
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>    */}
 
-      {/* Additional Notes */}
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          multiline
-          rows={3}
-          size="small"
-          label="Additional Notes or Observations"
-          name="Additional_Notes"
-          onChange={handleChange}
-          value={formData.Additional_Notes || ""}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid>
-      {/* Photos Available (Derived) */}
-      {/* <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          size="small"
-          label="Photos Available"
-          name="Photos_Available"
-          value={formData.Land_images ? formData.Land_images.length : 0} // Derived from Land_images array
-          InputProps={{
-            readOnly: true,
-          }}
-          InputLabelProps={{ style: { fontSize: 16 } }}
-        />
-      </Grid> */}
+              {/* Multiple Land Entries Table */}
+              <Grid item xs={12} sx={{ mt: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />} size="small"
+                    onClick={addLandEntry}                   
+                    sx={{
+                      backgroundColor: '#4caf50',
+                      '&:hover': {
+                        backgroundColor: '#45a049',
+                      },
+                    }}
+                  >
+                    Add Land Entry
+                  </Button> {/*Add land button*/}
+                </Box>
 
+                <TableContainer 
+                  component={Paper} 
+                  sx={{ 
+                    maxHeight: 400, 
+                    overflow: 'auto',
+                    '& .MuiTableCell-root': {
+                      padding: '4px 8px', // Reduced padding
+                      border: '1px solid #e0e0e0',
+                    },
+                    '& .MuiTextField-root': {
+                      '& .MuiInputBase-root': {
+                        fontSize: '0.875rem', // Smaller font
+                        padding: '0', // Remove default padding
+                      },
+                      '& .MuiInputBase-input': {
+                        padding: '8px 12px', // Tighter input padding
+                      },
+                      '& .MuiSelect-select': {
+                        padding: '8px 12px', // Tighter select padding
+                      },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0',
+                      },
+                    }
+                  }}
+                >
+                  <Table stickyHeader size="small">
+                    
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          minWidth: 100, // Reduced width
+                          padding: '8px 4px', // Tighter header padding
+                          fontSize: '0.8rem'
+                        }}>
+                          Land Area *
+                        </TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          minWidth: 80, // Reduced width
+                          padding: '8px 4px',
+                          fontSize: '0.8rem'
+                        }}>
+                          Unit
+                        </TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          minWidth: 140, // Reduced width
+                          padding: '8px 4px',
+                          fontSize: '0.8rem'
+                        }}>
+                          Land Location
+                        </TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          minWidth: 100, // Reduced width
+                          padding: '8px 4px',
+                          fontSize: '0.8rem'
+                        }}>
+                          Ownership *
+                        </TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          minWidth: 160, // Reduced width
+                          padding: '8px 4px',
+                          fontSize: '0.8rem'
+                        }}>
+                          Company/Owner Name
+                        </TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          minWidth: 180, // Reduced width
+                          padding: '8px 4px',
+                          fontSize: '0.8rem'
+                        }}>
+                          Company Address
+                        </TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          backgroundColor: '#f5f5f5', 
+                          textAlign: 'center', 
+                          minWidth: 60, // Reduced width
+                          padding: '8px 4px',
+                          fontSize: '0.8rem'
+                        }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {landEntries.map((entry, index) => (
+                        <TableRow key={entry.id} sx={{ height: '60px' }}> {/* Fixed row height */}
+                          <TableCell sx={{ padding: '2px 4px' }}> {/* Minimal padding */}
+                            <TextField
+                              fullWidth
+                              size="small"
+                              type="number"
+                              value={entry.landArea}
+                              onChange={(e) => updateLandEntry(entry.id, 'landArea', e.target.value)}
+                              inputProps={{ min: 0, step: 0.01 }}
+                              required
+                              sx={{ 
+                                minWidth: 90,
+                                '& .MuiOutlinedInput-root': {
+                                  height: '32px', // Fixed height
+                                },
+                                '& .MuiInputBase-input': {
+                                  padding: '6px 8px', // Minimal padding
+                                  fontSize: '0.8rem'
+                                }
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ padding: '2px 4px' }}>
+                            <TextField
+                              select
+                              fullWidth
+                              size="small"
+                              value={entry.landAreaUnit}
+                              onChange={(e) => updateLandEntry(entry.id, 'landAreaUnit', e.target.value)}
+                              sx={{ 
+                                minWidth: 70,
+                                '& .MuiOutlinedInput-root': {
+                                  height: '32px',
+                                },
+                                '& .MuiSelect-select': {
+                                  padding: '6px 8px',
+                                  fontSize: '0.8rem'
+                                }
+                              }}
+                            >
+                              <MenuItem value="Hectares">Hect</MenuItem>
+                              <MenuItem value="Perches">Per</MenuItem>
+                              <MenuItem value="Acres">Ac</MenuItem>
+                              {/* <MenuItem value="Square Feet">Sq Ft</MenuItem> */}
+                            </TextField>
+                          </TableCell>
+                          <TableCell sx={{ padding: '2px 4px' }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={entry.landLocation}
+                              onChange={(e) => updateLandEntry(entry.id, 'landLocation', e.target.value)}
+                              placeholder="Enter location"
+                              sx={{ 
+                                minWidth: 120,
+                                '& .MuiOutlinedInput-root': {
+                                  height: '32px',
+                                },
+                                '& .MuiInputBase-input': {
+                                  padding: '6px 8px',
+                                  fontSize: '0.8rem'
+                                }
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ padding: '2px 4px' }}>
+                            <TextField
+                              select
+                              fullWidth
+                              size="small"
+                              value={entry.ownership}
+                              onChange={(e) => updateLandEntry(entry.id, 'ownership', e.target.value)}
+                              required
+                              sx={{ 
+                                minWidth: 90,
+                                '& .MuiOutlinedInput-root': {
+                                  height: '32px',
+                                },
+                                '& .MuiSelect-select': {
+                                  padding: '6px 8px',
+                                  fontSize: '0.8rem'
+                                }
+                              }}
+                            >
+                              <MenuItem value="">Select</MenuItem>
+                              <MenuItem value="Government">Government</MenuItem>
+                              <MenuItem value="Private Own">Private</MenuItem>
+                            </TextField>
+                          </TableCell>
+                          <TableCell sx={{ padding: '2px 4px' }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={entry.companyName}
+                              onChange={(e) => updateLandEntry(entry.id, 'companyName', e.target.value)}
+                              placeholder="Company/Owner name"
+                              // required
+                              sx={{ 
+                                minWidth: 140,
+                                '& .MuiOutlinedInput-root': {
+                                  height: '32px',
+                                },
+                                '& .MuiInputBase-input': {
+                                  padding: '6px 8px',
+                                  fontSize: '0.8rem'
+                                }
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ padding: '2px 4px' }}>
+                            <TextField
+                              fullWidth
+                              multiline
+                              rows={1} // Reduced from 2 to 1
+                              size="small"
+                              value={entry.companyAddress}
+                              onChange={(e) => updateLandEntry(entry.id, 'companyAddress', e.target.value)}
+                              placeholder="Enter address"
+                              sx={{ 
+                                minWidth: 160,
+                                '& .MuiOutlinedInput-root': {
+                                  minHeight: '32px', // Minimum height for multiline
+                                },
+                                '& .MuiInputBase-input': {
+                                  padding: '6px 8px',
+                                  fontSize: '0.8rem'
+                                }
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center', padding: '2px 4px' }}>
+                            <IconButton
+                              onClick={() => removeLandEntry(entry.id)}
+                              disabled={landEntries.length === 1}
+                              size="small"
+                              sx={{
+                                color: landEntries.length === 1 ? 'disabled' : 'error.main',
+                                '&:hover': {
+                                  backgroundColor: landEntries.length === 1 ? 'transparent' : 'error.light',
+                                },
+                                padding: '4px', // Minimal padding
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+
+                  </Table>
+                </TableContainer>                
+
+                {/* <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
+                  <Table stickyHeader size="small">
+
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
+                          Land Area *
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
+                          Unit
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
+                          Land Location
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
+                          Ownership *
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
+                          Company/Owner Name *
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
+                          Company Address
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5', textAlign: 'center' }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {landEntries.map((entry, index) => (
+                        <TableRow key={entry.id}>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              type="number"
+                              value={entry.landArea}
+                              onChange={(e) => updateLandEntry(entry.id, 'landArea', e.target.value)}
+                              inputProps={{ min: 0, step: 0.01 }}
+                              required
+                              sx={{ minWidth: 120 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              select
+                              fullWidth
+                              size="small"
+                              value={entry.landAreaUnit}
+                              onChange={(e) => updateLandEntry(entry.id, 'landAreaUnit', e.target.value)}
+                              sx={{ minWidth: 100 }}
+                            >
+                              <MenuItem value="Hectares">Hectares</MenuItem>
+                              <MenuItem value="Perches">Perches</MenuItem>
+                              <MenuItem value="Acres">Acres</MenuItem>
+                              <MenuItem value="Square Feet">Sq Ft</MenuItem>
+                            </TextField>
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={entry.landLocation}
+                              onChange={(e) => updateLandEntry(entry.id, 'landLocation', e.target.value)}
+                              placeholder="Enter location"
+                              sx={{ minWidth: 150 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              select
+                              fullWidth
+                              size="small"
+                              value={entry.ownership}
+                              onChange={(e) => updateLandEntry(entry.id, 'ownership', e.target.value)}
+                              required
+                              sx={{ minWidth: 120 }}
+                            >
+                              <MenuItem value="">Select</MenuItem>
+                              <MenuItem value="Government">Government</MenuItem>
+                              <MenuItem value="Private">Private</MenuItem>
+                            </TextField>
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={entry.companyName}
+                              onChange={(e) => updateLandEntry(entry.id, 'companyName', e.target.value)}
+                              placeholder="Company/Owner name"
+                              required
+                              sx={{ minWidth: 180 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              multiline
+                              rows={2}
+                              size="small"
+                              value={entry.companyAddress}
+                              onChange={(e) => updateLandEntry(entry.id, 'companyAddress', e.target.value)}
+                              placeholder="Enter address"
+                              sx={{ minWidth: 200 }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <IconButton
+                              onClick={() => removeLandEntry(entry.id)}
+                              disabled={landEntries.length === 1}
+                              size="small"
+                              sx={{
+                                color: landEntries.length === 1 ? 'disabled' : 'error.main',
+                                '&:hover': {
+                                  backgroundColor: landEntries.length === 1 ? 'transparent' : 'error.light',
+                                },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                    
+                  </Table>
+                </TableContainer> */}
+
+                <Typography variant="body2" sx={{ color: "#666", mt: 1, fontStyle: 'italic' }}>
+                  * Required fields. You can add multiple land entries using the "Add Land Entry" button.
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Land Extent"
+                  name="Land_Extent"
+                  onChange={handleChange}
+                  value={formData.Land_Extent || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  size="small"
+                  label="Land Lot Details"
+                  name="Land_Lot_Details"
+                  onChange={handleChange}
+                  value={formData.Land_Lot_Details || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+
+              {/* Vulnerability and Livability */}
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: 18,
+                    background: SECTION_HEADER_BG,
+                    color: SECTION_HEADER_TEXT,
+                    borderRadius: 1,
+                    px: 3,
+                    mb: 1,
+                  }}
+                >
+                  Vulnerability and Livability
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  select
+                  label="Vulnerability Index"
+                  name="Vulnerability_Index"
+                  onChange={handleChange}
+                  value={formData.Vulnerability_Index || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                >
+                  <MenuItem value="Low">Low</MenuItem>
+                  <MenuItem value="Moderate">Moderate</MenuItem>
+                  <MenuItem value="High">High</MenuItem>
+                  <MenuItem value="Critical">Critical</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  select
+                  label="Livability Condition"
+                  name="Livability_Condition"
+                  onChange={handleChange}
+                  value={formData.Livability_Condition || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                >
+                  <MenuItem value="Good">Good</MenuItem>
+                  <MenuItem value="Moderate">Moderate</MenuItem>
+                  <MenuItem value="Poor">Poor</MenuItem>
+                  <MenuItem value="Critical">Critical</MenuItem>
+                </TextField>
+              </Grid>
+
+              {/* Additional Notes */}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  size="small"
+                  label="Additional Notes or Observations"
+                  name="Additional_Notes"
+                  onChange={handleChange}
+                  value={formData.Additional_Notes || ""}
+                  InputLabelProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
 
                 {/* Land Images */}
                 <Grid item xs={12} md={6}>
