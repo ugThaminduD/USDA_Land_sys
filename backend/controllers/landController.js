@@ -1,4 +1,4 @@
-const LandModel = require('../models/Land');
+const LandModel = require("../models/Land");
 
 
 // Create a new land entry
@@ -10,7 +10,11 @@ const createLand = async (req, res) => {
         await land.save();
         res.status(201).json({ message: 'Land entry created successfully', land });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error("Error creating land entry:", error);
+        res.status(400).json({ 
+            error: error.message,
+            stack: error.errors
+         });
     }
 };
 
