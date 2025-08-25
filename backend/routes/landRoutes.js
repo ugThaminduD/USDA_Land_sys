@@ -78,6 +78,7 @@ router.delete('/delete/land/:id', deleteLand);
 // Upload images
 router.post('/upload/images', upload.array('images', 5), (req, res) => { // Allow up to 5 images
     try {
+        console.log('Images received:', req.files); // Add logging
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ error: 'No files uploaded' });
         }
@@ -92,6 +93,7 @@ router.post('/upload/images', upload.array('images', 5), (req, res) => { // Allo
 // Upload documents
 router.post('/upload/documents', uploadDocuments.array('documents', 5), (req, res) => { // Allow up to 5 documents
     try {
+        console.log('Documents received:', req.files); // Add logging
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ error: 'No files uploaded' });
         }
