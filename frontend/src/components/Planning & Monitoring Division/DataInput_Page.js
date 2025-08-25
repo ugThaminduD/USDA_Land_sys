@@ -747,14 +747,12 @@ const LandInput = () => {
       setLandEntries(landEntries.filter(entry => entry.id !== id));
     }
   };
-
   // Function to update land entry
   const updateLandEntry = (id, field, value) => {
     setLandEntries(landEntries.map(entry => 
       entry.id === id ? { ...entry, [field]: value } : entry
     ));
   };
-
 
 
   // Close toast alert msg
@@ -1909,45 +1907,6 @@ const LandInput = () => {
                 </Typography>
               </Grid>
 
-              {/* <Grid item xs={12} md={6}>
-                <Grid container spacing={1}>
-                  <Grid item xs={7}>
-                    <TextField
-                      fullWidth required size="small"
-                      label={
-                        <>
-                          <span style={{ color: REQUIRED_COLOR }}>*</span>
-                          Area of Land
-                        </>
-                      }
-                      name="Social_Area_of_Land"
-                      onChange={handleChange}
-                      value={formData.Social_Area_of_Land}
-                      InputLabelProps={{ style: { fontSize: 16 } }}
-                      type="number" inputProps={{ min: 0, step: 0.01 }}
-                      InputProps={{
-                          endAdornment: (
-                          <InputAdornment position="end">{formData.Social_Area_of_Land_Unit}</InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={5}>
-                    <TextField
-                      select fullWidth required size="small" label="Unit"
-                      name="Social_Area_of_Land_Unit"
-                      onChange={handleChange}
-                      value={formData.Social_Area_of_Land_Unit}
-                      InputLabelProps={{ style: { fontSize: 16 } }}
-                    >
-                      <MenuItem value="Hectares">Hectares</MenuItem>
-                      <MenuItem value="Perches">Perches</MenuItem>
-                      <MenuItem value="Acres">Acres</MenuItem>
-                      <MenuItem value="Square Feet">Square Feet</MenuItem>
-                    </TextField>
-                  </Grid>
-                </Grid>
-              </Grid>    */}
 
               {/* Multiple Land Entries Table */}
               <Grid item xs={12} sx={{ mt: 1 }}>
@@ -2109,7 +2068,7 @@ const LandInput = () => {
                               <MenuItem value="Hectares">Hect</MenuItem>
                               <MenuItem value="Perches">Per</MenuItem>
                               <MenuItem value="Acres">Ac</MenuItem>
-                              {/* <MenuItem value="Square Feet">Sq Ft</MenuItem> */}
+                              <MenuItem value="Square Feet">Sq Ft</MenuItem>
                             </TextField>
                           </TableCell>
                           <TableCell sx={{ padding: '2px 4px' }}>
@@ -2218,135 +2177,6 @@ const LandInput = () => {
 
                   </Table>
                 </TableContainer>                
-
-                {/* <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  <Table stickyHeader size="small">
-
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
-                          Land Area *
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
-                          Unit
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
-                          Land Location
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
-                          Ownership *
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
-                          Company/Owner Name *
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5' }}>
-                          Company Address
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600, backgroundColor: '#f5f5f5', textAlign: 'center' }}>
-                          Actions
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                      {landEntries.map((entry, index) => (
-                        <TableRow key={entry.id}>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              type="number"
-                              value={entry.landArea}
-                              onChange={(e) => updateLandEntry(entry.id, 'landArea', e.target.value)}
-                              inputProps={{ min: 0, step: 0.01 }}
-                              required
-                              sx={{ minWidth: 120 }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <TextField
-                              select
-                              fullWidth
-                              size="small"
-                              value={entry.landAreaUnit}
-                              onChange={(e) => updateLandEntry(entry.id, 'landAreaUnit', e.target.value)}
-                              sx={{ minWidth: 100 }}
-                            >
-                              <MenuItem value="Hectares">Hectares</MenuItem>
-                              <MenuItem value="Perches">Perches</MenuItem>
-                              <MenuItem value="Acres">Acres</MenuItem>
-                              <MenuItem value="Square Feet">Sq Ft</MenuItem>
-                            </TextField>
-                          </TableCell>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={entry.landLocation}
-                              onChange={(e) => updateLandEntry(entry.id, 'landLocation', e.target.value)}
-                              placeholder="Enter location"
-                              sx={{ minWidth: 150 }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <TextField
-                              select
-                              fullWidth
-                              size="small"
-                              value={entry.ownership}
-                              onChange={(e) => updateLandEntry(entry.id, 'ownership', e.target.value)}
-                              required
-                              sx={{ minWidth: 120 }}
-                            >
-                              <MenuItem value="">Select</MenuItem>
-                              <MenuItem value="Government">Government</MenuItem>
-                              <MenuItem value="Private">Private</MenuItem>
-                            </TextField>
-                          </TableCell>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={entry.companyName}
-                              onChange={(e) => updateLandEntry(entry.id, 'companyName', e.target.value)}
-                              placeholder="Company/Owner name"
-                              required
-                              sx={{ minWidth: 180 }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              multiline
-                              rows={2}
-                              size="small"
-                              value={entry.companyAddress}
-                              onChange={(e) => updateLandEntry(entry.id, 'companyAddress', e.target.value)}
-                              placeholder="Enter address"
-                              sx={{ minWidth: 200 }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            <IconButton
-                              onClick={() => removeLandEntry(entry.id)}
-                              disabled={landEntries.length === 1}
-                              size="small"
-                              sx={{
-                                color: landEntries.length === 1 ? 'disabled' : 'error.main',
-                                '&:hover': {
-                                  backgroundColor: landEntries.length === 1 ? 'transparent' : 'error.light',
-                                },
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                    
-                  </Table>
-                </TableContainer> */}
 
                 <Typography variant="body2" sx={{ color: "#666", mt: 1, fontStyle: 'italic' }}>
                   * Required fields. You can add multiple land entries using the "Add Land Entry" button.
