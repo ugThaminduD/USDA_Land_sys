@@ -433,7 +433,7 @@ const LandInput = () => {
         });
 
         try {
-          const uploadResponse = await axios.post("/upload/images", imageFormData, {
+          const uploadResponse = await axios.post("/api/upload/images", imageFormData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
           landImageUrls = [...landImageUrls, ...uploadResponse.data.imageUrls];
@@ -455,7 +455,7 @@ const LandInput = () => {
         });
 
         try {
-          const uploadResponse = await axios.post("/upload/images", imageFormData, {
+          const uploadResponse = await axios.post("/api/upload/images", imageFormData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
           socialImageUrls = [...socialImageUrls, ...uploadResponse.data.imageUrls];
@@ -477,7 +477,7 @@ const LandInput = () => {
         });
 
         try {
-          const uploadResponse = await axios.post("/upload/documents", docFormData, {
+          const uploadResponse = await axios.post("/api/upload/documents", docFormData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
           landDocumentUrls = [...landDocumentUrls, ...uploadResponse.data.documentUrls];
@@ -499,7 +499,7 @@ const LandInput = () => {
         });
 
         try {
-          const uploadResponse = await axios.post("/upload/documents", docFormData, {
+          const uploadResponse = await axios.post("/api/upload/documents", docFormData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
           socialDocumentUrls = [...socialDocumentUrls, ...uploadResponse.data.documentUrls];
