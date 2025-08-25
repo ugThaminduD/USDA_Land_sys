@@ -253,7 +253,7 @@ landEntries: [{
     landAreaUnit: {
         type: String,
         default: "Hectares",
-        enum: ["Hectares", "Perches", "Acres"]
+        enum: ["Hectares", "Perches", "Acres", "Square Feet", ""]
     },
     landLocation: {
         type: String,
@@ -262,7 +262,7 @@ landEntries: [{
     ownership: {
         type: String,
         required: false,
-        enum: ["Government", "Private Own"]
+        enum: ["Government", "Private Own", ""]
     },
     companyName: {
         type: String,
