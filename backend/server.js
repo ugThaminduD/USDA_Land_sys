@@ -7,17 +7,14 @@ const path = require("path");
 const app = express();
 
 
-// Update CORS configuration
-// const corsOptions = {
-//   origin: process.env.NODE_ENV === 'production' 
-//     ? [
-//         'https://usda-land-frontend.onrender.com', ///// Replace with your actual frontend URL
-//         /\.onrender\.com$/
-//       ]
-//     : ["http://localhost:3000"],
-//   credentials: true,
-//   optionsSuccessStatus: 200
-// };
+// Update CORS for production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-frontend-url.com'] // Replace with actual frontend URL
+    : ["http://localhost:3000"],
+  credentials: true
+};
+app.use(cors(corsOptions));
 
 
 
