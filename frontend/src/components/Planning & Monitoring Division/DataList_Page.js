@@ -120,6 +120,23 @@ const LandList = () => {
         return chips.length > 0 ? chips : <Chip label="Legacy" color="default" size="small" />;
     };
 
+    // Function to get total land area from landEntries
+    const getTotalLandArea = (landEntries) => {
+        if (!landEntries || landEntries.length === 0) return "N/A";
+        
+        // Sum up all land areas (assuming they're in the same unit)
+        const total = landEntries.reduce((sum, entry) => {
+            const area = parseFloat(entry.landArea) || 0;
+            return sum + area;
+        }, 0);
+        
+        // Get the unit from the first entry (assuming all entries use the same unit)
+        const unit = landEntries[0]?.landAreaUnit || "";
+        
+        return `${total} ${unit}`;
+    };
+
+
     // Handle back navigation
     const handleBack = () => {
         navigate(-1); // Go back to previous page
@@ -328,7 +345,7 @@ const LandList = () => {
 
                         <TableHead>
                             <TableRow sx={{ backgroundColor: 'primary.main' }}>
-                                {/* <TableCell sx={{ color: 'white' }}>Land ID</TableCell> */}
+                                <TableCell sx={{ color: 'white' }}>Land ID</TableCell>
                                 <TableCell sx={{ color: 'white' }}>Province</TableCell>
                                 <TableCell sx={{ color: 'white' }}>District</TableCell>
                                 <TableCell sx={{ color: 'white' }}>Divisional Secretariat</TableCell>
@@ -344,7 +361,7 @@ const LandList = () => {
                         <TableBody>
                             {lands.map((land) => (
                                 <TableRow key={land._id} hover>
-                                    {/* <TableCell sx={{ fontSize: '12px' }}>{land._id}</TableCell> */}
+                                    <TableCell sx={{ fontSize: '12px' }}>{land._id}</TableCell>
                                     <TableCell>{land.Provinces}</TableCell>
                                     <TableCell>{land.Districts}</TableCell>
                                     <TableCell>{land.Divisional_secretariats}</TableCell>
@@ -364,14 +381,31 @@ const LandList = () => {
                                             `${land.Land_Area_of_Land} ${land.Land_Area_of_Land_Unit}` : 
                                             land.Area_of_Land || 'N/A'}
                                     </TableCell>
-                                    <TableCell>
+                                    {/* <TableCell>
                                         {land.Social_Area_of_Land ? 
                                             `${land.Social_Area_of_Land} ${land.Social_Area_of_Land_Unit}` : 
                                             'N/A'}
-                                    </TableCell>
+                                    </TableCell> */}
+
+                                    <TableCell>
+                                        {land.landEntries && land.landEntries.length > 0 ? (
+                                            <div>
+                                                {land.landEntries.map((entry, index) => (
+                                                    <div key={index} style={{ fontSize: '0.8em', marginBottom: '2px' }}>
+                                                        {entry.landArea} {entry.landAreaUnit}
+                                                        {entry.landLocation && ` (${entry.landLocation})`}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            "N/A"
+                                        )}
+                                    </TableCell>                                    
                                     <TableCell>
                                         {getSectionChips(land)}
                                     </TableCell>
+
+
 
                                     {/* action buttons */}
                                     <TableCell>
