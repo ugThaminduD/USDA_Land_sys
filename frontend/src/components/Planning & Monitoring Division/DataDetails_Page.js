@@ -184,7 +184,7 @@ const LandDetails = () => {
             <Button
                 variant="outlined"
                 startIcon={<ArrowBack />}
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/data/list')}
                 sx={{ 
                     mb: 3,
                     color: 'black',
@@ -514,7 +514,7 @@ const LandDetails = () => {
                                 </Grid>
 
                                 {/* Land Area Information */}
-                                <Grid item xs={12} md={6}>
+                                {/* <Grid item xs={12} md={6}>
                                     <Paper sx={{ p: 3, backgroundColor: '#ffffff', borderRadius: 2, boxShadow: 2, height: 'fit-content' }}>
                                         <Typography variant="h6" gutterBottom sx={{ color: '#f57c00', fontWeight: 'bold' }}>Land Information</Typography>
                                         <Divider sx={{ mb: 2, borderColor: '#ff9800' }} />
@@ -536,7 +536,58 @@ const LandDetails = () => {
                                             </Box>
                                         </Stack>
                                     </Paper>
-                                </Grid>
+                                </Grid> */}
+
+<Grid item xs={12} md={6}>
+    <Paper sx={{ p: 3, backgroundColor: '#ffffff', borderRadius: 2, boxShadow: 2, height: 'fit-content' }}>
+        <Typography variant="h6" gutterBottom sx={{ color: '#f57c00', fontWeight: 'bold' }}>Land Information</Typography>
+        <Divider sx={{ mb: 2, borderColor: '#ff9800' }} />
+        <Stack spacing={2}>
+            {/* Display land entries if they exist */}
+            {land.landEntries && land.landEntries.length > 0 ? (
+                <Box sx={{ p: 2, backgroundColor: '#fff8e1', borderRadius: 1 }}>
+                    <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 'bold', mb: 1 }}>Land Entries</Typography>
+                    {land.landEntries.map((entry, index) => (
+                        <Box key={index} sx={{ mb: 1, p: 1, border: '1px solid #ddd', borderRadius: 1 }}>
+                            <Typography variant="body2">
+                                <strong>Area:</strong> {entry.landArea} {entry.landAreaUnit}
+                            </Typography>
+                            {entry.landLocation && (
+                                <Typography variant="body2">
+                                    <strong>Location:</strong> {entry.landLocation}
+                                </Typography>
+                            )}
+                            {entry.ownership && (
+                                <Typography variant="body2">
+                                    <strong>Ownership:</strong> {entry.ownership}
+                                </Typography>
+                            )}
+                            {entry.companyName && (
+                                <Typography variant="body2">
+                                    <strong>Company/Owner:</strong> {entry.companyName}
+                                </Typography>
+                            )}
+                        </Box>
+                    ))}
+                </Box>
+            ) : (
+                <Box sx={{ p: 2, backgroundColor: '#fff8e1', borderRadius: 1 }}>
+                    <Typography variant="body2" color="textSecondary">No land entries available</Typography>
+                </Box>
+            )}
+            
+            <Box sx={{ p: 2, backgroundColor: '#fff8e1', borderRadius: 1 }}>
+                <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 'bold' }}>Land Extent</Typography>
+                <Typography variant="body1">{land.Land_Extent || "N/A"}</Typography>
+            </Box>
+            <Box sx={{ p: 2, backgroundColor: '#fff8e1', borderRadius: 1 }}>
+                <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 'bold' }}>Land Lot Details</Typography>
+                <Typography variant="body1">{land.Land_Lot_Details || "N/A"}</Typography>
+            </Box>
+        </Stack>
+    </Paper>
+</Grid>
+
 
                                 {/* Housing Statistics */}
                                 <Grid item xs={12}>
